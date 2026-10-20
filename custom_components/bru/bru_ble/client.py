@@ -29,10 +29,9 @@ NOTICE_AFTER = 1.0
 
 _PAIRING_HINT = (
     "The machine is not bonded. Put it in pairing mode (Machine Setup, "
-    "Pair New Device) until it shows Waiting for connection, then try again "
-    "and confirm the code. A stock ESPHome Bluetooth proxy cannot confirm "
-    "numeric comparison; use the Home Assistant Bluetooth adapter, or set "
-    "esp32_ble io_capability to display_yes_no on that proxy."
+    "Pair New Device) until it shows Waiting for connection. The ESPHome "
+    "proxy that keeps the bond needs the bru_bond component, so it starts "
+    "encryption when the link opens and accepts the code."
 )
 
 

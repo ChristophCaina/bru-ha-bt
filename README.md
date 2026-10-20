@@ -35,31 +35,22 @@ Adding the device does not pair. The first **Start brew** opens the connection. 
 
 Home Assistant uses its own Bluetooth adapter when that adapter is the one in range. On Linux the BlueZ agent has to be running (`bluetoothctl`) so the code can be confirmed.
 
-An ESPHome Bluetooth proxy becomes the controller when it is closer than the host. A stock proxy has no display and no yes/no, so the machine drops the link. On the proxy that should keep the bond, allow it to perform Home Assistant actions and add:
+An ESPHome Bluetooth proxy becomes the controller when it is closer than the host. A stock proxy changes the connection parameters after service discovery and only starts pairing when Home Assistant asks, so the machine drops the link first. On the one proxy that should keep the bond, add:
 
 ```yaml
+external_components:
+  - source: github://saschaludwig/bru-ha-bt@main
+    components: [bru_bond]
+
 esp32_ble:
   io_capability: display_yes_no
   auth_req_mode: sc_mitm_bond
 
-ble_client:
-  - mac_address: "AA:BB:CC:DD:EE:FF"  # address shown for the machine
-    id: bru_pairing
-    auto_connect: false
-    on_numeric_comparison_request:
-      then:
-        - homeassistant.action:
-            action: persistent_notification.create
-            data:
-              notification_id: bru_pairing
-              title: "BRU pairing"
-              message: !lambda 'return "Code on the machine: " + str_sprintf("%06lu", (unsigned long) passkey);'
-        - ble_client.numeric_comparison_reply:
-            id: bru_pairing
-            accept: true
+bru_bond:
+  mac_address: "AA:BB:CC:DD:EE:FF"  # address shown for the machine
 ```
 
-The bond is stored on that proxy. Other proxies in range need `bluetooth_proxy:` without `active: true`, or they take the connection and cannot confirm the code.
+`bru_bond` starts encryption when the link opens and accepts the six-digit code itself. The bond is stored on that proxy. Other proxies in range need `bluetooth_proxy:` without `active: true`, or they take the connection and do not have the keys.
 
 ## Library
 
