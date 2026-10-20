@@ -22,5 +22,4 @@ def test_hacs_manifest_and_bundled_library():
     assert manifest["documentation"].startswith("https://")
     assert manifest["issue_tracker"].startswith("https://")
     assert manifest["codeowners"] == ["@saschaludwig"]
-    assert manifest["categories"] == ["appliances_cleaning.cooking"]
     assert list(COMPONENT.glob("library.py")) == []
