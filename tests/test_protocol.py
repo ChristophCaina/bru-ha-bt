@@ -2,6 +2,7 @@
 
 from bru_ble.advertisement import parse_advertisement
 from bru_ble.commands import (
+    build_brew_identity,
     build_brew_start,
     build_cancel,
     build_get_preset,
@@ -11,6 +12,7 @@ from bru_ble.commands import (
     build_status_request,
     build_update_preset,
     checksum,
+    firmware_wants_extended_brew,
     parse_notification,
 )
 from bru_ble.status import (
@@ -36,6 +38,22 @@ def test_brew_frame_for_a_typical_cup():
     assert temperature_byte(80) == 8
     assert time_byte(180) == 17
     assert water_byte(250) == 4
+
+
+def test_extended_brew_frame_follows_the_datestamp():
+    assert firmware_wants_extended_brew("290626-1")
+    assert firmware_wants_extended_brew("010726-1")
+    assert not firmware_wants_extended_brew("280626-1")
+    assert not firmware_wants_extended_brew(None)
+    assert not firmware_wants_extended_brew("abc")
+
+    identity = build_brew_identity()
+    assert len(identity) == 8 + 48 + 4
+    frame = build_brew_start(80, 180, 250, identity=identity)
+    assert len(frame) == 75
+    assert frame[2] == 0x40
+    assert frame[3:14] == bytes.fromhex("0008110400000001000000")
+    assert frame[-1] == checksum(frame[:-1])
 
 
 def test_temperature_and_water_snap_to_supported_steps():

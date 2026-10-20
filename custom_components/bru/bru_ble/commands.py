@@ -5,6 +5,7 @@ from __future__ import annotations
 import struct
 import time
 from dataclasses import dataclass
+from datetime import date
 
 from .status import (
     BREW_RESULT_LABELS,
@@ -32,6 +33,9 @@ OPCODE_NICKNAME = 0x4A
 NAME_FIELD_BYTES = 48
 NAME_CHAR_LIMIT = 12
 CHECKSUM_SALT = 0x3A
+APP_ID_BYTES = 8
+# DIS datestamp DDMMYY. Firmware on or after this date rejects the short brew frame.
+_EXTENDED_BREW_MIN = date(2026, 6, 29)
 
 
 def checksum(body: bytes) -> int:
@@ -73,6 +77,31 @@ def build_cancel() -> bytes:
     return build_frame(OPCODE_CANCEL, b"", 4)
 
 
+def firmware_wants_extended_brew(version: str | None) -> bool:
+    """True when the DIS datestamp is on or after 29 June 2026."""
+    if not version:
+        return False
+    stamp = version.split("-", 1)[0].strip("\x00").strip()
+    if len(stamp) < 6 or not stamp[:6].isdigit():
+        return False
+    try:
+        parsed = date(2000 + int(stamp[4:6]), int(stamp[2:4]), int(stamp[0:2]))
+    except ValueError:
+        return False
+    return parsed >= _EXTENDED_BREW_MIN
+
+
+def build_brew_identity(
+    name: str = "",
+    tea_id: int = 0,
+    app_id: bytes = b"\x00" * APP_ID_BYTES,
+) -> bytes:
+    """v1.10 trailer: 8-byte app id, 48-byte name, little-endian tea id."""
+    if len(app_id) != APP_ID_BYTES:
+        raise ValueError("Brew app id must be 8 bytes")
+    return app_id + encode_name(name) + struct.pack("<I", tea_id & 0xFFFFFFFF)
+
+
 def build_brew_start(
     celsius: float,
     seconds: int,
@@ -86,8 +115,8 @@ def build_brew_start(
 ) -> bytes:
     """Build a start-brew frame.
 
-    ``identity`` is the optional v1.10 trailer (app id, name, tea id). Leave
-    it empty to send the legacy payload every firmware accepts.
+    ``identity`` is the v1.10 trailer (app id, name, tea id). Firmware on or
+    after 29 June 2026 rejects the frame without it.
     """
     payload = bytes(
         (

@@ -87,7 +87,7 @@ Legacy payload, 11 bytes, frame length 15:
 
 The instant-brew path sends rinse off, intensity `0`, delay `0`, buzzer on.
 
-Firmware whose datestamp is at least `290626` (the text before `-` in the DIS version, compared as a date) also accepts an extended payload: the 11 bytes above followed by an 8-byte app id, a 48-byte UTF-16LE name (24 characters, the app trims to 12), and a little-endian tea id. `bru_ble` sends the legacy payload unless an identity is supplied. The `0x41` response stores the result code at byte 3.
+Firmware whose datestamp is at least `290626` (the text before `-` in the DIS version, read as `DDMMYY`) rejects the 11-byte payload with result `1` and requires the extended payload: those 11 bytes followed by an 8-byte app id, a 48-byte UTF-16LE name (24 characters, the app trims to 12), and a little-endian tea id. `bru_ble` sends that trailer when the datestamp qualifies, and once more if a short frame is rejected with result `1`. The `0x41` response stores the result code at byte 3.
 
 | Result | Meaning |
 | --- | --- |

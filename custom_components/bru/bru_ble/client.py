@@ -11,10 +11,12 @@ from .commands import (
     OPCODE_BREW_RESULT,
     OPCODE_STATUS_PAYLOAD,
     Notification,
+    build_brew_identity,
     build_brew_start,
     build_cancel,
     build_set_time,
     build_status_request,
+    firmware_wants_extended_brew,
     parse_notification,
 )
 from .errors import BrewRejected, MachineNotFound, PairingFailed, ResponseTimeout
@@ -95,6 +97,7 @@ class BruClient:
                 raise PairingFailed(f"{_PAIRING_HINT} ({exc})") from exc
             raise
         self.firmware_version = await self._read_firmware()
+        _LOGGER.info("BRU firmware: %s", self.firmware_version or "unknown")
         try:
             await self._write(build_set_time())
         except Exception:
@@ -216,20 +219,55 @@ class BruClient:
         buzzer: bool = True,
     ) -> BrewResult:
         """Send a brew and wait for the 0x41 result. Raises if it is refused."""
+        extended = firmware_wants_extended_brew(self.firmware_version)
+        result = await self._request_brew(
+            celsius,
+            seconds,
+            milliliters,
+            rinse=rinse,
+            buzzer=buzzer,
+            identity=build_brew_identity() if extended else None,
+        )
+        # A short frame on firmware that wants the trailer comes back as format.
+        if result.code == 1 and not extended:
+            _LOGGER.info(
+                "BRU rejected the short brew frame (firmware %s); sending the extended frame",
+                self.firmware_version or "unknown",
+            )
+            result = await self._request_brew(
+                celsius,
+                seconds,
+                milliliters,
+                rinse=rinse,
+                buzzer=buzzer,
+                identity=build_brew_identity(),
+            )
+        if not result.success:
+            raise BrewRejected(result.code, result.label)
+        return result
+
+    async def _request_brew(
+        self,
+        celsius: float,
+        seconds: int,
+        milliliters: float,
+        *,
+        rinse: int,
+        buzzer: bool,
+        identity: bytes | None,
+    ) -> BrewResult:
         frame = build_brew_start(
             celsius,
             seconds,
             milliliters,
             rinse=rinse,
             buzzer=buzzer,
+            identity=identity,
         )
         self._drain()
         await self._write(frame)
         note = await self._wait({OPCODE_BREW_RESULT}, COMMAND_TIMEOUT)
-        result = note.brew_result or BrewResult(code=-1)
-        if not result.success:
-            raise BrewRejected(result.code, result.label)
-        return result
+        return note.brew_result or BrewResult(code=-1)
 
     async def cancel(self) -> None:
         """Ask the machine to stop the current process."""
