@@ -15,8 +15,6 @@ HACS only installs `custom_components/bru`. The Bluetooth library lives in that 
 
 [Add this repository to HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=saschaludwig&repository=bru-ha-bt&category=integration)
 
-When creating the GitHub repository, use the name `bru-ha-bt` under the account `saschaludwig`, and set a short description plus topics. `documentation` and `issue_tracker` in `custom_components/bru/manifest.json` point at that address. Publish a GitHub release (for example `v0.1.0`) so HACS can offer updates. The tag should match `version` in the manifest.
-
 Discovery uses the name `BRU` or the GATT service. After bonding, state comes from advertisements. Starting or cancelling a brew opens a short connection, writes one command, and disconnects.
 
 Entities:
