@@ -18,7 +18,7 @@ The app scans for a local name containing `BRU` (`looksLikeBruMachine`) and also
 
 ## Pairing
 
-The machine must be in **Machine Setup → Pair New Device** until the display says `Waiting for connection`. The link is LE Secure Connections with numeric comparison: the code on the machine has to be confirmed on the host. After bonding, the app writes `setTime` as its first encrypted operation. A rejection of that write before any encrypted operation succeeds means the code was declined. Later reconnects reuse the bond. The machine is effectively invisible to adapters that are not bonded and that are not in pairing mode.
+The machine must be in **Machine Setup → Pair New Device** until the display says `Waiting for connection`. The link is LE Secure Connections with numeric comparison: the code on the machine has to be confirmed on the controller that owns the connection. A controller with no display and no yes/no is rejected. After bonding, the app writes `setTime` as its first encrypted operation. A rejection of that write before any encrypted operation succeeds means the code was declined. Later reconnects reuse the bond. The machine is effectively invisible to adapters that are not bonded and that are not in pairing mode.
 
 The app connects only for a command (`TransientBrew`: connect, write, disconnect) and otherwise tracks state from advertisements.
 
