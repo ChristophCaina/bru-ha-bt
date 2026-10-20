@@ -10,7 +10,7 @@
       },
       "bluetooth_confirm": {
         "title": "{name} einrichten",
-        "description": "{name} hinzufügen? Beim ersten Verbinden den Kopplungscode an der Maschine bestätigen."
+        "description": "{name} hinzufügen? Die Kopplung startet nicht jetzt, sondern beim ersten „Brühen starten“. Die Maschine muss dann „Waiting for connection“ anzeigen."
       }
     },
     "abort": {

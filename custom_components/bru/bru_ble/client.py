@@ -17,13 +17,30 @@ from .commands import (
     build_status_request,
     parse_notification,
 )
-from .errors import BrewRejected, MachineNotFound, ResponseTimeout
+from .errors import BrewRejected, MachineNotFound, PairingFailed, ResponseTimeout
 from .status import BrewResult, MachineState
 from .uuids import FIRMWARE_REVISION, NOTIFY_UUID, WRITE_UUID
 
 _LOGGER = logging.getLogger(__name__)
 
 COMMAND_TIMEOUT = 8.0
+PAIR_TIMEOUT = 45.0
+
+_PAIRING_HINT = (
+    "The machine is not bonded. Put it in pairing mode (Machine Setup, "
+    "Pair New Device) until it shows Waiting for connection, then try again "
+    "and confirm the code. A stock ESPHome Bluetooth proxy cannot confirm "
+    "numeric comparison; use the Home Assistant Bluetooth adapter, or set "
+    "esp32_ble io_capability to display_yes_no on that proxy."
+)
+
+
+def _needs_bond(exc: BaseException) -> bool:
+    """True when a GATT error means the link is not authenticated yet."""
+    text = str(exc).lower()
+    return (
+        "insufficient authentication" in text or "insufficient encryption" in text
+    )
 
 
 class BruClient:
@@ -34,9 +51,14 @@ class BruClient:
     so the host can complete numeric-comparison bonding.
     """
 
-    def __init__(self, device: Any) -> None:
-        """``device`` is a Bluetooth address or a Bleak ``BLEDevice``."""
+    def __init__(self, device: Any, on_pairing: Any = None) -> None:
+        """``device`` is a Bluetooth address or a Bleak ``BLEDevice``.
+
+        ``on_pairing`` is called on the running loop just before ``pair()``,
+        so a UI can tell the user to confirm the code while the call blocks.
+        """
         self._device = device
+        self._on_pairing = on_pairing
         self._client: Any = None
         self._queue: asyncio.Queue[bytes] = asyncio.Queue(maxsize=32)
         self._loop: asyncio.AbstractEventLoop | None = None
@@ -57,7 +79,7 @@ class BruClient:
         self._loop = asyncio.get_running_loop()
         self._client = BleakClient(self._device)
         await self._client.connect()
-        await self._client.start_notify(NOTIFY_UUID, self._on_notify)
+        await self._start_notify()
         self.firmware_version = await self._read_firmware()
         try:
             await self._write(build_set_time())
@@ -73,6 +95,45 @@ class BruClient:
         self._client = None
         if client is not None and client.is_connected:
             await client.disconnect()
+
+    async def _start_notify(self) -> None:
+        """Subscribe, pairing once on this same connection if the link is open.
+
+        ESPHome proxies answer a protected CCCD write with Insufficient
+        authentication and do not start pairing by themselves. ``pair()`` has
+        to run on this connection; a later connection does not reuse it.
+        """
+        try:
+            await self._client.start_notify(NOTIFY_UUID, self._on_notify)
+            return
+        except Exception as exc:
+            if not _needs_bond(exc):
+                raise
+            _LOGGER.warning(
+                "BRU refused notifications (%s). Pairing on this connection.", exc
+            )
+        await self._pair()
+        try:
+            await self._client.start_notify(NOTIFY_UUID, self._on_notify)
+        except Exception as exc:
+            if _needs_bond(exc):
+                raise PairingFailed(_PAIRING_HINT) from exc
+            raise
+
+    async def _pair(self) -> None:
+        if self._on_pairing is not None:
+            self._on_pairing()
+        try:
+            await asyncio.wait_for(self._client.pair(), PAIR_TIMEOUT)
+        except NotImplementedError as exc:
+            raise PairingFailed(
+                "This Bluetooth path cannot pair. Upgrade the ESPHome proxy, "
+                "or connect with the Home Assistant Bluetooth adapter."
+            ) from exc
+        except TimeoutError as exc:
+            raise PairingFailed(_PAIRING_HINT) from exc
+        except Exception as exc:
+            raise PairingFailed(_PAIRING_HINT) from exc
 
     def _on_notify(self, _sender: Any, data: bytearray) -> None:
         if self._loop is None:

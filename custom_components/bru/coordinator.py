@@ -6,7 +6,7 @@ import asyncio
 import logging
 from typing import Any, Callable
 
-from homeassistant.components import bluetooth
+from homeassistant.components import bluetooth, persistent_notification
 from homeassistant.components.bluetooth import (
     BluetoothCallbackMatcher,
     BluetoothChange,
@@ -116,8 +116,24 @@ class BruCoordinator:
                 "BRU machine is not in range. For a first bond, put it in "
                 "pairing mode (Machine Setup, Pair New Device)."
             )
-        client = BruClient(device)
-        await client.connect()
+        notice = f"bru_pairing_{self.address}"
+
+        def _on_pairing() -> None:
+            persistent_notification.async_create(
+                self.hass,
+                "Confirm the code on the BRU. It must show Waiting for connection "
+                "(Machine Setup, Pair New Device). If no code appears in Home "
+                "Assistant, this link is an ESPHome Bluetooth proxy that cannot "
+                "do numeric comparison.",
+                title="BRU pairing",
+                notification_id=notice,
+            )
+
+        client = BruClient(device, on_pairing=_on_pairing)
+        try:
+            await client.connect()
+        finally:
+            persistent_notification.async_dismiss(self.hass, notice)
         return client
 
     async def async_start_brew(self) -> None:

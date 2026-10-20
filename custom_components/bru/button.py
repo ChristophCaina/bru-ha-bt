@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from bleak.exc import BleakError
 from homeassistant.components.button import ButtonEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
@@ -45,7 +46,7 @@ class BruStartButton(_BruButton):
     async def async_press(self) -> None:
         try:
             await self.coordinator.async_start_brew()
-        except BruError as err:
+        except (BruError, BleakError) as err:
             raise HomeAssistantError(str(err)) from err
 
 
@@ -62,5 +63,5 @@ class BruCancelButton(_BruButton):
     async def async_press(self) -> None:
         try:
             await self.coordinator.async_cancel_brew()
-        except BruError as err:
+        except (BruError, BleakError) as err:
             raise HomeAssistantError(str(err)) from err

@@ -18,5 +18,9 @@ class MachineNotFound(BruError):
     """No bonded or advertising BRU machine matched the request."""
 
 
+class PairingFailed(BruError):
+    """The host could not bond, so encrypted commands are refused."""
+
+
 class ResponseTimeout(BruError):
     """The machine did not answer a command in time."""

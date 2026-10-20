@@ -10,7 +10,7 @@
       },
       "bluetooth_confirm": {
         "title": "Set up {name}",
-        "description": "Add {name}? Confirm the pairing code on the machine the first time it connects."
+        "description": "Add {name}? Pairing does not happen now. On the first Start brew the machine must show Waiting for connection, then confirm the code."
       }
     },
     "abort": {

@@ -17,7 +17,7 @@ HACS only installs `custom_components/bru`. The Bluetooth library lives in that 
 
 When creating the GitHub repository, use the name `bru-ha-bt` under the account `saschaludwig`, and set a short description plus topics. `documentation` and `issue_tracker` in `custom_components/bru/manifest.json` point at that address. Publish a GitHub release (for example `v0.1.0`) so HACS can offer updates. The tag should match `version` in the manifest.
 
-The machine only accepts a new host while it shows **Waiting for connection** (Machine Setup, Pair New Device). Confirm the numeric pairing code on the Home Assistant host. After that bond, the same host can reconnect without pairing mode. A phone that is already bonded does not share its keys.
+Adding the device does not pair. The first **Start brew** opens the link and starts pairing. The machine only accepts a new host while it shows **Waiting for connection** (Machine Setup, Pair New Device). Confirm the numeric pairing code on the Home Assistant host. After that bond, the same host can reconnect without pairing mode. A phone that is already bonded does not share its keys. A stock ESPHome Bluetooth proxy cannot confirm numeric comparison.
 
 Discovery uses the name `BRU` or the GATT service. After bonding, state comes from advertisements. Starting or cancelling a brew opens a short connection, writes one command, and disconnects.
 

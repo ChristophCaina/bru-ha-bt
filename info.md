@@ -10,7 +10,7 @@ The repository has to be public. In HACS open **Custom repositories**, add `http
 
 ## Pairing
 
-The machine ignores a new host until it shows **Waiting for connection** (Machine Setup, Pair New Device). Confirm the numeric pairing code on the Home Assistant host. After that bond, the same host reconnects without pairing mode. A phone that is already bonded is a different host.
+Adding the device does not pair. The first brew starts pairing. The machine ignores a new host until it shows **Waiting for connection** (Machine Setup, Pair New Device). Confirm the numeric pairing code on the Home Assistant host. After that bond, the same host reconnects without pairing mode. A phone that is already bonded is a different host. A stock ESPHome Bluetooth proxy cannot confirm numeric comparison.
 
 State is read from Bluetooth advertisements. Starting or cancelling a brew opens a short connection, writes one command, and disconnects.
 
