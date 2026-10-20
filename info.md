@@ -29,7 +29,7 @@ ble_client:
             data:
               notification_id: bru_pairing
               title: "BRU pairing"
-              message: !lambda 'return "Code on the machine: " + str_sprintf("%06u", passkey);'
+              message: !lambda 'return "Code on the machine: " + str_sprintf("%06lu", (unsigned long) passkey);'
         - ble_client.numeric_comparison_reply:
             id: bru_pairing
             accept: true
