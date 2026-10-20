@@ -25,6 +25,7 @@ _LOGGER = logging.getLogger(__name__)
 
 COMMAND_TIMEOUT = 8.0
 PAIR_TIMEOUT = 45.0
+NOTICE_AFTER = 1.0
 
 _PAIRING_HINT = (
     "The machine is not bonded. Put it in pairing mode (Machine Setup, "
@@ -41,6 +42,12 @@ def _needs_bond(exc: BaseException) -> bool:
     return (
         "insufficient authentication" in text or "insufficient encryption" in text
     )
+
+
+def _already_bonded(exc: BaseException) -> bool:
+    """BlueZ raises this when the controller already has the bond."""
+    compact = str(exc).lower().replace(" ", "")
+    return "alreadyexists" in compact or "alreadypaired" in compact
 
 
 class BruClient:
@@ -79,7 +86,15 @@ class BruClient:
         self._loop = asyncio.get_running_loop()
         self._client = BleakClient(self._device)
         await self._client.connect()
-        await self._start_notify()
+        # Pair before any GATT write. A refused notify makes the machine drop
+        # the link, and the pairing request afterwards never starts.
+        await self._pair()
+        try:
+            await self._client.start_notify(NOTIFY_UUID, self._on_notify)
+        except Exception as exc:
+            if _needs_bond(exc):
+                raise PairingFailed(f"{_PAIRING_HINT} ({exc})") from exc
+            raise
         self.firmware_version = await self._read_firmware()
         try:
             await self._write(build_set_time())
@@ -96,44 +111,34 @@ class BruClient:
         if client is not None and client.is_connected:
             await client.disconnect()
 
-    async def _start_notify(self) -> None:
-        """Subscribe, pairing once on this same connection if the link is open.
-
-        ESPHome proxies answer a protected CCCD write with Insufficient
-        authentication and do not start pairing by themselves. ``pair()`` has
-        to run on this connection; a later connection does not reuse it.
-        """
-        try:
-            await self._client.start_notify(NOTIFY_UUID, self._on_notify)
-            return
-        except Exception as exc:
-            if not _needs_bond(exc):
-                raise
-            _LOGGER.warning(
-                "BRU refused notifications (%s). Pairing on this connection.", exc
-            )
-        await self._pair()
-        try:
-            await self._client.start_notify(NOTIFY_UUID, self._on_notify)
-        except Exception as exc:
-            if _needs_bond(exc):
-                raise PairingFailed(_PAIRING_HINT) from exc
-            raise
-
     async def _pair(self) -> None:
-        if self._on_pairing is not None:
-            self._on_pairing()
+        """Bond on this connection. A fast return means the bond already exists."""
+        task = asyncio.ensure_future(self._client.pair())
         try:
-            await asyncio.wait_for(self._client.pair(), PAIR_TIMEOUT)
-        except NotImplementedError as exc:
+            await asyncio.wait_for(asyncio.shield(task), NOTICE_AFTER)
+        except TimeoutError:
+            if self._on_pairing is not None:
+                self._on_pairing()
+            try:
+                await asyncio.wait_for(task, PAIR_TIMEOUT - NOTICE_AFTER)
+            except TimeoutError as exc:
+                task.cancel()
+                raise PairingFailed(f"{_PAIRING_HINT} ({exc})") from exc
+            except Exception as exc:
+                self._raise_pair(exc)
+        except Exception as exc:
+            self._raise_pair(exc)
+
+    def _raise_pair(self, exc: BaseException) -> None:
+        if _already_bonded(exc):
+            return
+        _LOGGER.warning("BRU pairing failed: %s", exc)
+        if isinstance(exc, NotImplementedError):
             raise PairingFailed(
                 "This Bluetooth path cannot pair. Upgrade the ESPHome proxy, "
                 "or connect with the Home Assistant Bluetooth adapter."
             ) from exc
-        except TimeoutError as exc:
-            raise PairingFailed(_PAIRING_HINT) from exc
-        except Exception as exc:
-            raise PairingFailed(_PAIRING_HINT) from exc
+        raise PairingFailed(f"{_PAIRING_HINT} ({exc})") from exc
 
     def _on_notify(self, _sender: Any, data: bytearray) -> None:
         if self._loop is None:

@@ -40,6 +40,7 @@ An ESPHome Bluetooth proxy becomes the controller when it is closer than the hos
 ```yaml
 esp32_ble:
   io_capability: display_yes_no
+  auth_req_mode: sc_mitm_bond
 
 ble_client:
   - mac_address: "AA:BB:CC:DD:EE:FF"  # address shown for the machine

@@ -52,7 +52,7 @@ def _install(monkeypatch, link: _Link) -> None:
     monkeypatch.setattr("bleak.BleakClient", _Client)
 
 
-def test_pairs_on_the_connection_that_was_refused(monkeypatch):
+def test_pairs_before_the_notify_subscription(monkeypatch):
     link = _Link()
     _install(monkeypatch, link)
     prompted = []
@@ -60,13 +60,50 @@ def test_pairs_on_the_connection_that_was_refused(monkeypatch):
         BruClient("FD:BF:FC:6B:3D:26", on_pairing=lambda: prompted.append(1)).connect()
     )
     assert link.pair_calls == 1
-    assert link.notifies == 2
+    assert link.notifies == 1
+    assert prompted == []
+
+
+def test_slow_pair_shows_the_prompt(monkeypatch):
+    monkeypatch.setattr("bru_ble.client.NOTICE_AFTER", 0.01)
+    link = _Link()
+
+    async def _slow_pair() -> None:
+        link.pair_calls += 1
+        await asyncio.sleep(0.05)
+        link.paired = True
+
+    link.pair = _slow_pair
+    _install(monkeypatch, link)
+    prompted = []
+    asyncio.run(
+        BruClient("FD:BF:FC:6B:3D:26", on_pairing=lambda: prompted.append(1)).connect()
+    )
     assert prompted == [1]
+    assert link.notifies == 1
 
 
 def test_still_locked_after_pair_raises_pairing_failed(monkeypatch):
     link = _Link(stay_locked=True)
     _install(monkeypatch, link)
-    with pytest.raises(PairingFailed):
+    with pytest.raises(PairingFailed, match="Insufficient authentication"):
         asyncio.run(BruClient("FD:BF:FC:6B:3D:26").connect())
     assert link.pair_calls == 1
+    assert link.notifies == 1
+
+
+def test_existing_bond_is_not_an_error(monkeypatch):
+    link = _Link()
+
+    async def _already_paired() -> None:
+        link.pair_calls += 1
+        raise BleakError("org.bluez.Error.AlreadyExists")
+
+    async def _notify(_uuid, _callback) -> None:
+        link.notifies += 1
+
+    link.pair = _already_paired
+    link.start_notify = _notify
+    _install(monkeypatch, link)
+    asyncio.run(BruClient("FD:BF:FC:6B:3D:26").connect())
+    assert link.notifies == 1
