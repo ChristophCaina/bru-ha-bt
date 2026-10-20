@@ -7,6 +7,7 @@ name = "bru-ble"
 version = "0.1.0"
 description = "Bluetooth client and Home Assistant integration for the BRU Maker One"
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.11"
 dependencies = ["bleak>=0.22"]
 

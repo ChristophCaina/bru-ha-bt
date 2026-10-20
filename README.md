@@ -50,3 +50,7 @@ python -m bru_ble cancel AA:BB:CC:DD:EE:FF
 ```
 
 On Linux the BlueZ agent has to be running so it can display the pairing code (`bluetoothctl` with an agent).
+
+## License
+
+MIT. See [LICENSE](LICENSE).

@@ -17,5 +17,6 @@
   ],
   "dependencies": ["bluetooth"],
   "iot_class": "local_push",
+  "categories": ["appliances_cleaning.cooking"],
   "version": "0.1.0"
 }

@@ -9,7 +9,8 @@ COMPONENT = ROOT / "custom_components" / "bru"
 
 def test_hacs_manifest_and_bundled_library():
     assert (ROOT / "hacs.json").is_file()
-    assert (ROOT / "brand" / "icon.png").is_file()
+    assert (ROOT / "LICENSE").is_file()
+    assert (COMPONENT / "brand" / "icon.png").is_file()
     assert (COMPONENT / "bru_ble" / "__init__.py").is_file()
     assert not (ROOT / "bru_ble").exists()
 
@@ -21,4 +22,5 @@ def test_hacs_manifest_and_bundled_library():
     assert manifest["documentation"].startswith("https://")
     assert manifest["issue_tracker"].startswith("https://")
     assert manifest["codeowners"] == ["@saschaludwig"]
+    assert manifest["categories"] == ["appliances_cleaning.cooking"]
     assert list(COMPONENT.glob("library.py")) == []
