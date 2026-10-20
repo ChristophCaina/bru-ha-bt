@@ -4,7 +4,7 @@ Control a BRU Maker One tea machine from Home Assistant over Bluetooth.
 
 ## Install with HACS
 
-The repository has to be public. In HACS open **Custom repositories**, add `https://github.com/saschaludwig/bru-ha-bt` as an **Integration**, then install **BRU Maker One** and restart Home Assistant.
+In HACS open **Custom repositories**, add `https://github.com/saschaludwig/bru-ha-bt` as an **Integration**, then install **BRU Maker One** and restart Home Assistant.
 
 [Add this repository to HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=saschaludwig&repository=bru-ha-bt&category=integration)
 

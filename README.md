@@ -6,7 +6,7 @@ The wire format is documented in [docs/protocol.md](docs/protocol.md).
 
 ## Home Assistant (HACS)
 
-HACS only installs `custom_components/bru`. The Bluetooth library lives in that directory, so a normal HACS install is enough. Home Assistant 2025.1 or newer is required. The GitHub repository has to be public.
+HACS only installs `custom_components/bru`. The Bluetooth library lives in that directory, so a normal HACS install is enough. Home Assistant 2025.1 or newer is required.
 
 1. In HACS, open the three-dot menu and choose **Custom repositories**.
 2. Add `https://github.com/saschaludwig/bru-ha-bt` with the category **Integration**.
