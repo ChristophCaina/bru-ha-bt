@@ -1,0 +1,48 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "BRU Maker One",
+        "description": "Wähle eine Maschine, die gerade sichtbar ist. Für die erste Verbindung muss der Pairing-Modus an sein: Maschineneinstellungen, Neues Gerät koppeln, bis „Waiting for connection“ angezeigt wird.",
+        "data": {
+          "address": "Maschine"
+        }
+      },
+      "bluetooth_confirm": {
+        "title": "{name} einrichten",
+        "description": "{name} hinzufügen? Beim ersten Verbinden den Kopplungscode an der Maschine bestätigen."
+      }
+    },
+    "abort": {
+      "not_supported": "Dieses Bluetooth-Gerät ist keine BRU-Maschine.",
+      "no_devices_found": "Keine BRU-Maschine sichtbar. Bluetooth einschalten und für die erste Kopplung den Pairing-Modus aktivieren.",
+      "already_configured": "Diese Maschine ist bereits eingerichtet."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "status": {
+        "name": "Status"
+      }
+    },
+    "number": {
+      "temperature": {
+        "name": "Temperatur"
+      },
+      "steep_time": {
+        "name": "Ziehzeit"
+      },
+      "water": {
+        "name": "Wassermenge"
+      }
+    },
+    "button": {
+      "start_brew": {
+        "name": "Brühen starten"
+      },
+      "cancel_brew": {
+        "name": "Abbrechen"
+      }
+    }
+  }
+}

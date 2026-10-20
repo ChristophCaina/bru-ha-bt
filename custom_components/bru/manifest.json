@@ -1,0 +1,21 @@
+{
+  "domain": "bru",
+  "name": "BRU Maker One",
+  "codeowners": ["@saschaludwig"],
+  "config_flow": true,
+  "documentation": "https://github.com/saschaludwig/bru-ha-bt",
+  "issue_tracker": "https://github.com/saschaludwig/bru-ha-bt/issues",
+  "requirements": [],
+  "bluetooth": [
+    {
+      "service_uuid": "aae28f00-71b5-42a1-8c3c-f9cf6ac969d0",
+      "connectable": true
+    },
+    {
+      "local_name": "BRU*"
+    }
+  ],
+  "dependencies": ["bluetooth"],
+  "iot_class": "local_push",
+  "version": "0.1.0"
+}

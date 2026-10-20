@@ -1,0 +1,52 @@
+# BRU Maker One
+
+Bluetooth control for the [BRU Maker One](https://bru.shop) tea machine, recovered from the official Android app and reimplemented in Python.
+
+The wire format is documented in [docs/protocol.md](docs/protocol.md).
+
+## Home Assistant (HACS)
+
+HACS only installs `custom_components/bru`. The Bluetooth library lives in that directory, so a normal HACS install is enough. Home Assistant 2025.1 or newer is required. The GitHub repository has to be public.
+
+1. In HACS, open the three-dot menu and choose **Custom repositories**.
+2. Add `https://github.com/saschaludwig/bru-ha-bt` with the category **Integration**.
+3. Install **BRU Maker One** and restart Home Assistant.
+4. Add the integration from Settings, Devices & services.
+
+[Add this repository to HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=saschaludwig&repository=bru-ha-bt&category=integration)
+
+When creating the GitHub repository, use the name `bru-ha-bt` under the account `saschaludwig`, and set a short description plus topics. `documentation` and `issue_tracker` in `custom_components/bru/manifest.json` point at that address. Publish a GitHub release (for example `v0.1.0`) so HACS can offer updates. The tag should match `version` in the manifest.
+
+The machine only accepts a new host while it shows **Waiting for connection** (Machine Setup, Pair New Device). Confirm the numeric pairing code on the Home Assistant host. After that bond, the same host can reconnect without pairing mode. A phone that is already bonded does not share its keys.
+
+Discovery uses the name `BRU` or the GATT service. After bonding, state comes from advertisements. Starting or cancelling a brew opens a short connection, writes one command, and disconnects.
+
+Entities:
+
+- Status sensor
+- Temperature, steep time, and water amount
+- Start brew and Cancel
+
+Firmware updates and log transfer are not exposed.
+
+To install without HACS, copy `custom_components/bru` into the Home Assistant config directory and restart.
+
+## Library
+
+The same package can be installed on its own for scans and one-off commands:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest
+```
+
+```bash
+python -m bru_ble scan
+python -m bru_ble status AA:BB:CC:DD:EE:FF
+python -m bru_ble brew AA:BB:CC:DD:EE:FF --celsius 80 --seconds 180 --milliliters 250
+python -m bru_ble cancel AA:BB:CC:DD:EE:FF
+```
+
+On Linux the BlueZ agent has to be running so it can display the pairing code (`bluetoothctl` with an agent).

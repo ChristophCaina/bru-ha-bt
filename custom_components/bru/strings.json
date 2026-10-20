@@ -1,0 +1,48 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "BRU Maker One",
+        "description": "Choose a machine that is advertising. The first connection needs pairing mode: Machine Setup, Pair New Device, until the display says Waiting for connection.",
+        "data": {
+          "address": "Machine"
+        }
+      },
+      "bluetooth_confirm": {
+        "title": "Set up {name}",
+        "description": "Add {name}? Confirm the pairing code on the machine the first time it connects."
+      }
+    },
+    "abort": {
+      "not_supported": "This Bluetooth device is not a BRU machine.",
+      "no_devices_found": "No BRU machine is advertising. Turn Bluetooth on and, for a first bond, enable pairing mode.",
+      "already_configured": "This machine is already set up."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "status": {
+        "name": "Status"
+      }
+    },
+    "number": {
+      "temperature": {
+        "name": "Temperature"
+      },
+      "steep_time": {
+        "name": "Steep time"
+      },
+      "water": {
+        "name": "Water"
+      }
+    },
+    "button": {
+      "start_brew": {
+        "name": "Start brew"
+      },
+      "cancel_brew": {
+        "name": "Cancel"
+      }
+    }
+  }
+}
