@@ -21,7 +21,7 @@ Entities:
 
 - Status sensor
 - Brewing binary sensor (on from filling until the tea is ready)
-- Prompt binary sensors: Add water, Cup missing, Remove cup, Lid, Error. They
+- Prompt binary sensors (problem/opening): Add water, Cup missing, Remove cup, Lid, Error. They
   are on while the machine shows that screen; the machine reports screens, not
   sensor readings, so they turn off when the screen changes
 - Brew event entity: `brew_started`, `brew_finished`, `brew_cancelled`

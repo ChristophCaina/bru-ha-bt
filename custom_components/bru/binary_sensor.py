@@ -29,19 +29,16 @@ PROMPTS: tuple[BruPromptDescription, ...] = (
         key="add_water",
         sub_status="msgAddWater",
         device_class=BinarySensorDeviceClass.PROBLEM,
-        icon="mdi:water-alert",
     ),
     BruPromptDescription(
         key="place_cup",
         sub_status="msgPlaceCup",
         device_class=BinarySensorDeviceClass.PROBLEM,
-        icon="mdi:cup-off-outline",
     ),
     BruPromptDescription(
         key="remove_cup",
         sub_status="msgRemoveCup",
-        device_class=BinarySensorDeviceClass.OCCUPANCY,
-        icon="mdi:cup",
+        device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BruPromptDescription(
         key="close_lid",

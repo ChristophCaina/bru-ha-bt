@@ -39,7 +39,6 @@ class BruStatusSensor(SensorEntity):
 
     _attr_has_entity_name = True
     _attr_translation_key = "status"
-    _attr_icon = "mdi:tea"
 
     def __init__(self, coordinator: BruCoordinator) -> None:
         self.coordinator = coordinator
@@ -130,8 +129,6 @@ class _BruTimestampSensor(SensorEntity):
 class BruSteepingSinceSensor(_BruTimestampSensor):
     """When the current steep started. Empty when not brewing."""
 
-    _attr_icon = "mdi:timer-sand"
-
     def __init__(self, coordinator: BruCoordinator) -> None:
         super().__init__(coordinator, "steeping_since")
 
@@ -142,8 +139,6 @@ class BruSteepingSinceSensor(_BruTimestampSensor):
 
 class BruReadyAtSensor(_BruTimestampSensor):
     """When the steep ends. Only known for brews started from Home Assistant."""
-
-    _attr_icon = "mdi:timer-check-outline"
 
     def __init__(self, coordinator: BruCoordinator) -> None:
         super().__init__(coordinator, "ready_at")
