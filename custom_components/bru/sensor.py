@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import BruConfigEntry
+from .bru_ble.status import state_options
 from .coordinator import BruCoordinator
 
 
@@ -24,12 +25,18 @@ class BruStatusSensor(SensorEntity):
 
     _attr_has_entity_name = True
     _attr_translation_key = "status"
+    _attr_device_class = SensorDeviceClass.ENUM
     _attr_icon = "mdi:tea"
 
     def __init__(self, coordinator: BruCoordinator) -> None:
         self.coordinator = coordinator
         self._attr_unique_id = f"{coordinator.address}_status"
         self._attr_device_info = coordinator.device_info
+
+    @property
+    def options(self) -> list[str]:
+        """States the automation editor can offer in a dropdown."""
+        return state_options(self.coordinator.state.label)
 
     @property
     def native_value(self) -> str:

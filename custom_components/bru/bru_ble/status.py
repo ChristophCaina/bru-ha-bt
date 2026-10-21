@@ -336,6 +336,26 @@ def friendly_state(status: str | None, sub_status: str | None) -> str:
     return "Unknown"
 
 
+def _known_state_labels() -> tuple[str, ...]:
+    """Every label a known status or sub-status can show."""
+    labels = {friendly_state(status, None) for status in STATUS_NAMES.values()}
+    labels.update(
+        friendly_state(None, sub_status) for sub_status in SUBSTATUS_NAMES.values()
+    )
+    return tuple(sorted(labels))
+
+
+_KNOWN_STATE_LABELS = _known_state_labels()
+_KNOWN_STATE_LABEL_SET = frozenset(_KNOWN_STATE_LABELS)
+
+
+def state_options(current: str | None = None) -> list[str]:
+    """Known labels, plus a live value the table does not list yet."""
+    if current and current not in _KNOWN_STATE_LABEL_SET:
+        return [*_KNOWN_STATE_LABELS, current]
+    return list(_KNOWN_STATE_LABELS)
+
+
 @dataclass(frozen=True)
 class MachineState:
     """Decoded machine state from an advertisement or a status notification."""
