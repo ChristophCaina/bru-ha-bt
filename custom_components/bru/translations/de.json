@@ -19,6 +19,18 @@
       "already_configured": "Diese Maschine ist bereits eingerichtet."
     }
   },
+  "device_automation": {
+    "trigger_type": {
+      "brew_started": "Brühvorgang gestartet",
+      "brew_finished": "Tee ist fertig",
+      "brew_cancelled": "Brühvorgang abgebrochen",
+      "add_water": "Fordert Wasser nach",
+      "place_cup": "Fordert eine Tasse",
+      "remove_cup": "Fordert, die Tasse zu entnehmen",
+      "close_lid": "Fordert, den Deckel zu schließen",
+      "error": "Zeigt einen Fehler"
+    }
+  },
   "entity": {
     "binary_sensor": {
       "brewing": {
