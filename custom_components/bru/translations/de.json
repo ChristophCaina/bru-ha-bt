@@ -230,6 +230,12 @@
       },
       "rssi": {
         "name": "Signalstärke"
+      },
+      "steeping_since": {
+        "name": "Zieht seit"
+      },
+      "ready_at": {
+        "name": "Fertig um"
       }
     }
   }
