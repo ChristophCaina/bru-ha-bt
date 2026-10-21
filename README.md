@@ -53,6 +53,17 @@ machine enters the steeping phase. *Ready at* adds the steep time and is only
 filled for brews started from Home Assistant within the last 10 minutes; a brew
 started on the machine leaves it empty.
 
+### Device triggers
+
+In the automation editor, pick the machine as a device trigger:
+
+- Brew started, Tea is ready, Brew cancelled
+- Asks to add water, Asks for a cup, Asks to remove the cup, Asks to close the
+  lid, Shows an error
+
+Prompts fire once when the machine enters that screen. They are also sent on
+the event bus as `bru_prompt` with `type` and `device_id`.
+
 ### Teas
 
 The **Tea** select loads temperature and steep time. Built-in teas:

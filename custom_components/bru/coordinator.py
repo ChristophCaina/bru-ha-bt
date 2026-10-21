@@ -36,6 +36,8 @@ from .const import (
     CONF_CUSTOM_TEAS,
     DEFAULT_STEEP_SECONDS,
     EVENT_BREW,
+    EVENT_PROMPT,
+    PROMPT_SUBSTATUSES,
     DEFAULT_TEMPERATURE_C,
     DEFAULT_WATER_ML,
     DOMAIN,
@@ -76,6 +78,7 @@ class BruCoordinator:
         self.rssi: int | None = None
         self._busy = False
         self._device_id: str | None = None
+        self._last_sub_status: str | None = None
         self._cancel_requested = False
         self._event_listeners: list[Callable[[str], None]] = []
         # Steep timing. ready_at is only known for brews started from HA,
@@ -106,6 +109,7 @@ class BruCoordinator:
             # Seed the busy flag so a running brew at startup does not
             # produce a spurious brew_started event.
             self._busy = self.brewing
+            self._last_sub_status = self.state.sub_status
         self._unsub.append(
             bluetooth.async_register_callback(
                 self.hass,
@@ -223,6 +227,7 @@ class BruCoordinator:
 
     def _track_brew(self) -> None:
         """Turn brewing/idle transitions into brew lifecycle events."""
+        self._track_prompt()
         busy = self.brewing
         self._track_steeping(busy)
         if busy == self._busy:
@@ -236,6 +241,21 @@ class BruCoordinator:
             self._cancel_requested = False
             self._brew_steep_seconds = None
             self._brew_started_at = None
+
+    def _track_prompt(self) -> None:
+        """Fire bru_prompt when the machine starts asking for something."""
+        sub_status = self.state.sub_status
+        if sub_status == self._last_sub_status:
+            return
+        self._last_sub_status = sub_status
+        prompt = PROMPT_SUBSTATUSES.get(sub_status or "")
+        if prompt is None:
+            return
+        _LOGGER.debug("BRU %s prompt: %s", self.address, prompt)
+        self.hass.bus.async_fire(
+            EVENT_PROMPT,
+            {"device_id": self.device_id, "address": self.address, "type": prompt},
+        )
 
     def _track_steeping(self, busy: bool) -> None:
         """Remember when steeping started and when the tea should be ready."""

@@ -19,6 +19,18 @@
       "already_configured": "This machine is already set up."
     }
   },
+  "device_automation": {
+    "trigger_type": {
+      "brew_started": "Brew started",
+      "brew_finished": "Tea is ready",
+      "brew_cancelled": "Brew cancelled",
+      "add_water": "Asks to add water",
+      "place_cup": "Asks for a cup",
+      "remove_cup": "Asks to remove the cup",
+      "close_lid": "Asks to close the lid",
+      "error": "Shows an error"
+    }
+  },
   "entity": {
     "binary_sensor": {
       "brewing": {
