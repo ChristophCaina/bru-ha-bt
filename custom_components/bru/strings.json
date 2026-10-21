@@ -20,9 +20,31 @@
     }
   },
   "entity": {
-    "sensor": {
-      "status": {
-        "name": "Status"
+    "binary_sensor": {
+      "brewing": {
+        "name": "Brewing"
+      }
+    },
+    "button": {
+      "start_brew": {
+        "name": "Start brew"
+      },
+      "cancel_brew": {
+        "name": "Cancel"
+      }
+    },
+    "event": {
+      "brew": {
+        "name": "Brew",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "brew_started": "Brew started",
+              "brew_finished": "Brew finished",
+              "brew_cancelled": "Brew cancelled"
+            }
+          }
+        }
       }
     },
     "number": {
@@ -36,12 +58,12 @@
         "name": "Water"
       }
     },
-    "button": {
-      "start_brew": {
-        "name": "Start brew"
+    "sensor": {
+      "status": {
+        "name": "Status"
       },
-      "cancel_brew": {
-        "name": "Cancel"
+      "rssi": {
+        "name": "Signal strength"
       }
     }
   }
