@@ -2,9 +2,18 @@ name: Validate
 
 on:
   push:
+    branches: [main]
   pull_request:
   schedule:
     - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   hassfest:
@@ -20,19 +29,3 @@ jobs:
       - uses: hacs/action@main
         with:
           category: integration
-
-  tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-      - name: Protocol and pairing tests
-        run: |
-          pip install bleak pytest
-          PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest tests --ignore=tests/ha
-      - name: Home Assistant tests
-        run: |
-          pip install pytest-homeassistant-custom-component aiousbwatcher pyserial habluetooth bluetooth-adapters bluetooth-auto-recovery bluetooth-data-tools bleak-retry-connector dbus-fast
-          python -m pytest -o asyncio_mode=auto tests/ha

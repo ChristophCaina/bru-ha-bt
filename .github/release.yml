@@ -1,0 +1,14 @@
+# Categories for generated release notes.
+changelog:
+  exclude:
+    labels: [skip-changelog]
+    authors: [dependabot]
+  categories:
+    - title: New features
+      labels: [enhancement]
+    - title: Fixes
+      labels: [bug]
+    - title: Protocol
+      labels: [protocol]
+    - title: Other changes
+      labels: ["*"]

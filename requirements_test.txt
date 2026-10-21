@@ -1,0 +1,11 @@
+# Home Assistant test harness plus the requirements of the bluetooth and usb
+# components, which the harness does not pull in.
+pytest-homeassistant-custom-component
+aiousbwatcher
+pyserial
+habluetooth
+bluetooth-adapters
+bluetooth-auto-recovery
+bluetooth-data-tools
+bleak-retry-connector
+dbus-fast
