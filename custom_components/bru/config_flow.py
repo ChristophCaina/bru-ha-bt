@@ -8,11 +8,18 @@ from homeassistant.components.bluetooth import (
     BluetoothServiceInfoBleak,
     async_discovered_service_info,
 )
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlow,
+)
+from homeassistant.core import callback
 from homeassistant.const import CONF_ADDRESS
 
 from .bru_ble.advertisement import looks_like_bru
-from .const import DOMAIN
+from .const import CONF_CUSTOM_TEAS, DOMAIN
+from .teas import TeaParseError, parse_custom_teas
 
 
 def _is_bru(discovery: BluetoothServiceInfoBleak) -> bool:
@@ -26,6 +33,12 @@ class BruConfigFlow(ConfigFlow, domain=DOMAIN):
 
     def __init__(self) -> None:
         self._discovery: BluetoothServiceInfoBleak | None = None
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
+        """Custom teas."""
+        return BruOptionsFlow()
 
     async def async_step_bluetooth(
         self, discovery_info: BluetoothServiceInfoBleak
@@ -97,3 +110,40 @@ def _address_schema(discovered: dict[str, str]):
             )
         }
     )
+
+
+class BruOptionsFlow(OptionsFlow):
+    """Edit the list of custom teas."""
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        import voluptuous as vol
+        from homeassistant.helpers import selector
+
+        errors: dict[str, str] = {}
+        placeholders = {"error": ""}
+        current = self.config_entry.options.get(CONF_CUSTOM_TEAS, "")
+        if user_input is not None:
+            current = user_input.get(CONF_CUSTOM_TEAS, "")
+            try:
+                parse_custom_teas(current)
+            except TeaParseError as err:
+                errors[CONF_CUSTOM_TEAS] = "invalid_teas"
+                placeholders["error"] = f"\n\n**{err}**"
+            else:
+                return self.async_create_entry(data={CONF_CUSTOM_TEAS: current})
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional(
+                        CONF_CUSTOM_TEAS, default=current
+                    ): selector.TextSelector(
+                        selector.TextSelectorConfig(multiline=True)
+                    )
+                }
+            ),
+            errors=errors,
+            description_placeholders=placeholders,
+        )
