@@ -20,6 +20,44 @@
     }
   },
   "entity": {
+    "binary_sensor": {
+      "brewing": {
+        "name": "Brüht"
+      }
+    },
+    "button": {
+      "start_brew": {
+        "name": "Brühen starten"
+      },
+      "cancel_brew": {
+        "name": "Abbrechen"
+      }
+    },
+    "event": {
+      "brew": {
+        "name": "Brühvorgang",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "brew_started": "Brühen gestartet",
+              "brew_finished": "Tee fertig",
+              "brew_cancelled": "Brühen abgebrochen"
+            }
+          }
+        }
+      }
+    },
+    "number": {
+      "temperature": {
+        "name": "Temperatur"
+      },
+      "steep_time": {
+        "name": "Ziehzeit"
+      },
+      "water": {
+        "name": "Wassermenge"
+      }
+    },
     "sensor": {
       "status": {
         "name": "Status",
@@ -189,25 +227,9 @@
           "water_filter_reset": "Wasserfilter zurücksetzen",
           "water_filter_reset_exe": "Wasserfilter-Reset ausführen"
         }
-      }
-    },
-    "number": {
-      "temperature": {
-        "name": "Temperatur"
       },
-      "steep_time": {
-        "name": "Ziehzeit"
-      },
-      "water": {
-        "name": "Wassermenge"
-      }
-    },
-    "button": {
-      "start_brew": {
-        "name": "Brühen starten"
-      },
-      "cancel_brew": {
-        "name": "Abbrechen"
+      "rssi": {
+        "name": "Signalstärke"
       }
     }
   }

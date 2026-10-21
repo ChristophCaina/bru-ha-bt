@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorStateClass,
+)
+from homeassistant.const import SIGNAL_STRENGTH_DECIBELS_MILLIWATT, EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -16,8 +21,9 @@ async def async_setup_entry(
     entry: BruConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Create the status sensor."""
-    async_add_entities([BruStatusSensor(entry.runtime_data)])
+    """Create the status and signal sensors."""
+    coordinator = entry.runtime_data
+    async_add_entities([BruStatusSensor(coordinator), BruRssiSensor(coordinator)])
 
 
 class BruStatusSensor(SensorEntity):
@@ -39,6 +45,10 @@ class BruStatusSensor(SensorEntity):
         return state_options(self.coordinator.state.label)
 
     @property
+    def available(self) -> bool:
+        return self.coordinator.available
+
+    @property
     def native_value(self) -> str:
         return state_key(self.coordinator.state.label)
 
@@ -53,6 +63,37 @@ class BruStatusSensor(SensorEntity):
             "source": state.source,
             "busy": state.busy,
         }
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        self.async_on_remove(
+            self.coordinator.async_add_listener(self.async_write_ha_state)
+        )
+
+
+class BruRssiSensor(SensorEntity):
+    """Signal strength of the latest advertisement."""
+
+    _attr_has_entity_name = True
+    _attr_translation_key = "rssi"
+    _attr_device_class = SensorDeviceClass.SIGNAL_STRENGTH
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = SIGNAL_STRENGTH_DECIBELS_MILLIWATT
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_entity_registry_enabled_default = False
+
+    def __init__(self, coordinator: BruCoordinator) -> None:
+        self.coordinator = coordinator
+        self._attr_unique_id = f"{coordinator.address}_rssi"
+        self._attr_device_info = coordinator.device_info
+
+    @property
+    def available(self) -> bool:
+        return self.coordinator.available and self.coordinator.rssi is not None
+
+    @property
+    def native_value(self) -> int | None:
+        return self.coordinator.rssi
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()

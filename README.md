@@ -20,8 +20,35 @@ Discovery uses the name `BRU` or the GATT service. After bonding, state comes fr
 Entities:
 
 - Status sensor
+- Brewing binary sensor (on from filling until the tea is ready)
+- Brew event entity: `brew_started`, `brew_finished`, `brew_cancelled`
+- Signal strength (diagnostic, disabled by default)
 - Temperature, steep time, and water amount
 - Start brew and Cancel
+
+When the machine stops advertising (switched off or out of range), status,
+brewing, and the buttons become unavailable until the next advertisement.
+
+Every lifecycle change is also fired on the event bus as `bru_brew` with
+`type`, `device_id`, `address`, and the brew settings. Example:
+
+```yaml
+automation:
+  - alias: Tea is ready
+    triggers:
+      - trigger: state
+        entity_id: event.bru_maker_one_brew
+        attribute: event_type
+        to: brew_finished
+    actions:
+      - action: notify.notify
+        data:
+          message: Tea is ready.
+```
+
+`brew_finished` fires when the machine reaches the "Ready to enjoy" screen,
+not when the cup is removed. `brew_cancelled` is only reported for cancels sent
+from Home Assistant; a cancel on the machine itself shows up as `brew_finished`.
 
 Firmware updates and log transfer are not exposed.
 

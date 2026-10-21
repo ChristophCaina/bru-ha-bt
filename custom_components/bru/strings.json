@@ -20,6 +20,44 @@
     }
   },
   "entity": {
+    "binary_sensor": {
+      "brewing": {
+        "name": "Brewing"
+      }
+    },
+    "button": {
+      "start_brew": {
+        "name": "Start brew"
+      },
+      "cancel_brew": {
+        "name": "Cancel"
+      }
+    },
+    "event": {
+      "brew": {
+        "name": "Brew",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "brew_started": "Brew started",
+              "brew_finished": "Brew finished",
+              "brew_cancelled": "Brew cancelled"
+            }
+          }
+        }
+      }
+    },
+    "number": {
+      "temperature": {
+        "name": "Temperature"
+      },
+      "steep_time": {
+        "name": "Steep time"
+      },
+      "water": {
+        "name": "Water"
+      }
+    },
     "sensor": {
       "status": {
         "name": "Status",
@@ -189,25 +227,9 @@
           "water_filter_reset": "Reset water filter",
           "water_filter_reset_exe": "Run water filter reset"
         }
-      }
-    },
-    "number": {
-      "temperature": {
-        "name": "Temperature"
       },
-      "steep_time": {
-        "name": "Steep time"
-      },
-      "water": {
-        "name": "Water"
-      }
-    },
-    "button": {
-      "start_brew": {
-        "name": "Start brew"
-      },
-      "cancel_brew": {
-        "name": "Cancel"
+      "rssi": {
+        "name": "Signal strength"
       }
     }
   }

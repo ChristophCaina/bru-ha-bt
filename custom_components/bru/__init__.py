@@ -9,7 +9,13 @@ from homeassistant.core import HomeAssistant
 from .const import DOMAIN
 from .coordinator import BruCoordinator
 
-PLATFORMS = [Platform.BUTTON, Platform.NUMBER, Platform.SENSOR]
+PLATFORMS = [
+    Platform.BINARY_SENSOR,
+    Platform.BUTTON,
+    Platform.EVENT,
+    Platform.NUMBER,
+    Platform.SENSOR,
+]
 
 type BruConfigEntry = ConfigEntry[BruCoordinator]
 

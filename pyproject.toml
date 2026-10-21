@@ -20,4 +20,4 @@ include = ["bru_ble*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["custom_components/bru"]
+pythonpath = ["custom_components/bru", "."]
