@@ -72,7 +72,25 @@
     },
     "sensor": {
       "status": {
-        "default": "mdi:tea"
+        "default": "mdi:tea",
+        "state": {
+          "idle": "mdi:sleep",
+          "standby": "mdi:power-sleep",
+          "filling": "mdi:water-plus",
+          "heating": "mdi:thermometer-water",
+          "steeping": "mdi:timer-sand",
+          "serving": "mdi:kettle-pour-over",
+          "rinsing": "mdi:water-sync",
+          "enjoy": "mdi:tea",
+          "add_water": "mdi:water-alert",
+          "place_cup": "mdi:cup-off-outline",
+          "remove_cup": "mdi:cup",
+          "close_lid": "mdi:package-variant",
+          "error": "mdi:alert-circle",
+          "warning": "mdi:alert",
+          "descaling": "mdi:water-sync",
+          "firmware_update": "mdi:update"
+        }
       },
       "steeping_since": {
         "default": "mdi:timer-sand"

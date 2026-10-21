@@ -104,7 +104,47 @@
     },
     "sensor": {
       "status": {
-        "name": "Status"
+        "name": "Status",
+        "state": {
+          "ready": "Bereit",
+          "idle": "Ruhezustand",
+          "filling": "Befüllen",
+          "heating": "Aufheizen",
+          "adding_cold_water": "Kaltes Wasser zugeben",
+          "steeping": "Ziehen",
+          "rinse_delay": "Warten auf Spülen",
+          "serving": "Ausschenken",
+          "rinsing": "Spülen",
+          "enjoy": "Tee ist fertig",
+          "dispensing": "Ausgabe",
+          "timer": "Timer",
+          "place_cup": "Tasse einsetzen",
+          "remove_cup": "Tasse entnehmen",
+          "close_lid": "Deckel schließen",
+          "open_lid": "Deckel öffnen",
+          "add_water": "Wasser nachfüllen",
+          "insert_chamber": "Brühkammer einsetzen",
+          "no_nozzle": "Düse fehlt",
+          "error": "Fehler",
+          "place_descaling_adapter": "Entkalkungsadapter einsetzen",
+          "firmware_update": "Firmware-Update",
+          "standby": "Standby",
+          "menu": "Menü",
+          "setup": "Einstellungen",
+          "brewing": "Brühen",
+          "cold_tea": "Kalter Tee",
+          "split_cup": "Geteilte Tasse",
+          "multi_steeping": "Mehrfachaufguss",
+          "info": "Information",
+          "warning": "Warnung",
+          "hot_tea": "Heißer Tee",
+          "test": "Testmodus",
+          "drying": "Trocknen",
+          "descaling": "Entkalken",
+          "lid_reminder": "Deckel-Erinnerung",
+          "bluetooth": "Bluetooth-Menü",
+          "other": "Sonstiges"
+        }
       },
       "rssi": {
         "name": "Signalstärke"

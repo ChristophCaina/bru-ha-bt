@@ -19,7 +19,8 @@ Discovery uses the name `BRU` or the GATT service. After bonding, state comes fr
 
 Entities:
 
-- Status sensor
+- Status sensor (translated states such as `ready`, `filling`, `steeping`,
+  `enjoy`, `add_water`; the raw status names stay in the attributes)
 - Brewing binary sensor (on from filling until the tea is ready)
 - Prompt binary sensors (problem/opening): Add water, Cup missing, Remove cup, Lid, Error. They
   are on while the machine shows that screen; the machine reports screens, not

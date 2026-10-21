@@ -104,7 +104,47 @@
     },
     "sensor": {
       "status": {
-        "name": "Status"
+        "name": "Status",
+        "state": {
+          "ready": "Ready",
+          "idle": "Idle",
+          "filling": "Filling",
+          "heating": "Heating",
+          "adding_cold_water": "Adding cold water",
+          "steeping": "Steeping",
+          "rinse_delay": "Waiting to rinse",
+          "serving": "Serving",
+          "rinsing": "Rinsing",
+          "enjoy": "Tea is ready",
+          "dispensing": "Dispensing",
+          "timer": "Timer",
+          "place_cup": "Place a cup",
+          "remove_cup": "Remove the cup",
+          "close_lid": "Close the lid",
+          "open_lid": "Open the lid",
+          "add_water": "Add water",
+          "insert_chamber": "Insert the chamber",
+          "no_nozzle": "Nozzle missing",
+          "error": "Error",
+          "place_descaling_adapter": "Place the descaling adapter",
+          "firmware_update": "Firmware update",
+          "standby": "Standby",
+          "menu": "Menu",
+          "setup": "Settings",
+          "brewing": "Brewing",
+          "cold_tea": "Cold tea",
+          "split_cup": "Split cup",
+          "multi_steeping": "Multi-steeping",
+          "info": "Information",
+          "warning": "Warning",
+          "hot_tea": "Hot tea",
+          "test": "Test mode",
+          "drying": "Drying",
+          "descaling": "Descaling",
+          "lid_reminder": "Lid reminder",
+          "bluetooth": "Bluetooth menu",
+          "other": "Other"
+        }
       },
       "rssi": {
         "name": "Signal strength"

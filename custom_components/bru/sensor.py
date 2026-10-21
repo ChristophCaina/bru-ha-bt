@@ -14,6 +14,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import BruConfigEntry
+from .bru_ble.status import STATE_KEYS
 from .coordinator import BruCoordinator
 
 
@@ -39,6 +40,8 @@ class BruStatusSensor(SensorEntity):
 
     _attr_has_entity_name = True
     _attr_translation_key = "status"
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options = STATE_KEYS
 
     def __init__(self, coordinator: BruCoordinator) -> None:
         self.coordinator = coordinator
@@ -50,8 +53,8 @@ class BruStatusSensor(SensorEntity):
         return self.coordinator.available
 
     @property
-    def native_value(self) -> str:
-        return self.coordinator.state.label
+    def native_value(self) -> str | None:
+        return self.coordinator.state.key
 
     @property
     def extra_state_attributes(self) -> dict[str, object]:
