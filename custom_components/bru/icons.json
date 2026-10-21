@@ -55,6 +55,9 @@
       }
     },
     "number": {
+      "temperature": {
+        "default": "mdi:thermometer-water"
+      },
       "steep_time": {
         "default": "mdi:timer-sand"
       },
