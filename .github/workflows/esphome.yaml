@@ -1,0 +1,42 @@
+name: ESPHome
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "components/**"
+      - "tests/esphome/**"
+      - ".github/workflows/esphome.yaml"
+  pull_request:
+    paths:
+      - "components/**"
+      - "tests/esphome/**"
+      - ".github/workflows/esphome.yaml"
+  schedule:
+    # Weekly, to catch ESPHome releases that break the component.
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bru_bond:
+    name: Build bru_bond
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: pip install esphome
+      - uses: actions/cache@v6
+        with:
+          path: ~/.platformio
+          key: platformio-${{ runner.os }}-${{ hashFiles('tests/esphome/*.yaml') }}
+      - run: esphome config tests/esphome/bru_bond.yaml
+      - run: esphome compile tests/esphome/bru_bond.yaml

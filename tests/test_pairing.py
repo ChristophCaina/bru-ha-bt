@@ -2,8 +2,8 @@
 
 import asyncio
 
-import pytest
 from bleak.exc import BleakError
+import pytest
 
 from bru_ble.client import BruClient
 from bru_ble.errors import PairingFailed

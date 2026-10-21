@@ -201,6 +201,65 @@ FRIENDLY_SUBSTATUS: dict[str, str] = {
     "msgPlaceDescaling": "Place the descaling adapter",
 }
 
+# Stable, translatable keys for the Home Assistant status sensor. A known
+# sub-status wins; otherwise the main status decides.
+SUBSTATUS_KEYS: dict[str, str] = {
+    "homeScreen": "ready",
+    "homeScreensaver": "idle",
+    "brewingFillingUp": "filling",
+    "brewingHotWater": "heating",
+    "brewingColdWater": "adding_cold_water",
+    "brewingSteeping": "steeping",
+    "brewingRinseDelay": "rinse_delay",
+    "brewingServing": "serving",
+    "brewingRinse": "rinsing",
+    "brewingEnjoy": "enjoy",
+    "dispensing": "dispensing",
+    "timerRunning": "timer",
+    "msgPlaceCup": "place_cup",
+    "msgRemoveCup": "remove_cup",
+    "msgCloseLid": "close_lid",
+    "msgOpenLid": "open_lid",
+    "msgAddWater": "add_water",
+    "msgInsertChamber": "insert_chamber",
+    "msgNoNozzle": "no_nozzle",
+    "msgError": "error",
+    "msgPlaceDescaling": "place_descaling_adapter",
+    "firmwareUpdate": "firmware_update",
+}
+
+STATUS_KEYS: dict[str, str] = {
+    "StandbyMode": "standby",
+    "FunctionMenu": "menu",
+    "MachineSetup": "setup",
+    "MachineSetupHidden": "setup",
+    "Brewing": "brewing",
+    "Dispensing": "dispensing",
+    "AlarmTimer": "timer",
+    "ColdTea": "cold_tea",
+    "SplitCup": "split_cup",
+    "MultiSteeping": "multi_steeping",
+    "InfoMessge": "info",
+    "WarningMessage": "warning",
+    "ErrorMessage": "error",
+    "HotTea": "hot_tea",
+    "ManufTest": "test",
+    "ManualTest": "test",
+    "DurabPVtest": "test",
+    "DurabPumptest": "test",
+    "DurabHeatertest": "test",
+    "DurabFulltest": "test",
+    "Drying": "drying",
+    "Descaling": "descaling",
+    "LidReminder": "lid_reminder",
+    "BluetoothMenu": "bluetooth",
+}
+
+OTHER_KEY = "other"
+STATE_KEYS: list[str] = sorted(
+    {*SUBSTATUS_KEYS.values(), *STATUS_KEYS.values(), OTHER_KEY}
+)
+
 TEMPERATURE_C_TO_BYTE: dict[int, int] = {
     0: 0,
     45: 1,
@@ -281,9 +340,7 @@ def _build_time_table() -> dict[int, int]:
 
 
 SECONDS_TO_TIME_BYTE = _build_time_table()
-TIME_BYTE_TO_SECONDS = {
-    byte: seconds for seconds, byte in SECONDS_TO_TIME_BYTE.items()
-}
+TIME_BYTE_TO_SECONDS = {byte: seconds for seconds, byte in SECONDS_TO_TIME_BYTE.items()}
 
 
 def nearest_temperature_c(celsius: float) -> int:
@@ -361,6 +418,15 @@ class MachineState:
     @property
     def label(self) -> str:
         return friendly_state(self.status, self.sub_status)
+
+    @property
+    def key(self) -> str | None:
+        """Translatable state key, or None before any state was seen."""
+        if self.status_code is None and self.sub_status_code is None:
+            return None
+        if self.sub_status in SUBSTATUS_KEYS:
+            return SUBSTATUS_KEYS[self.sub_status]
+        return STATUS_KEYS.get(self.status or "", OTHER_KEY)
 
     @property
     def busy(self) -> bool:

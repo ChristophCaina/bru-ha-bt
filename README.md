@@ -19,9 +19,108 @@ Discovery uses the name `BRU` or the GATT service. After bonding, state comes fr
 
 Entities:
 
-- Status sensor
+- Status sensor (translated states such as `ready`, `filling`, `steeping`,
+  `enjoy`, `add_water`; the raw status names stay in the attributes)
+- Brewing binary sensor (on from filling until the tea is ready)
+- Prompt binary sensors (problem): Add water, Cup missing, Remove cup, Close lid, Error. They
+  are on while the machine shows that screen; the machine reports screens, not
+  sensor readings, so they turn off when the screen changes
+- Brew event entity: `brew_started`, `brew_finished`, `brew_cancelled`
+- Steeping since and Ready at (timestamps, shown as relative times)
+- Signal strength (diagnostic, disabled by default)
+- Tea select (built-in teas plus your own, see below)
 - Temperature, steep time, and water amount
 - Start brew and Cancel
+
+When the machine stops advertising (switched off or out of range), status,
+brewing, and the buttons become unavailable until the next advertisement.
+
+Every lifecycle change is also fired on the event bus as `bru_brew` with
+`type`, `device_id`, `address`, and the brew settings. Example:
+
+```yaml
+automation:
+  - alias: Tea is ready
+    triggers:
+      - trigger: state
+        entity_id: event.bru_maker_one_brew
+        attribute: event_type
+        to: brew_finished
+    actions:
+      - action: notify.notify
+        data:
+          message: Tea is ready.
+```
+
+The machine does not report a remaining time. *Steeping since* is set when the
+machine enters the steeping phase. *Ready at* adds the steep time and is only
+filled for brews started from Home Assistant within the last 10 minutes; a brew
+started on the machine leaves it empty.
+
+### Device triggers
+
+In the automation editor, pick the machine as a device trigger:
+
+- Brew started, Tea is ready, Brew cancelled
+- Asks to add water, Asks for a cup, Asks to remove the cup, Asks to close the
+  lid, Shows an error
+
+Prompts fire once when the machine enters that screen. They are also sent on
+the event bus as `bru_prompt` with `type` and `device_id`.
+
+### Teas
+
+The **Tea** select loads temperature and steep time. Built-in teas:
+
+| Tea | °C | Steep time |
+| --- | --- | --- |
+| Green tea | 80 | 2:00 |
+| Sencha | 70 | 1:00 |
+| White tea | 80 | 3:00 |
+| Oolong | 90 | 3:00 |
+| Darjeeling | 85 | 3:00 |
+| Black tea | 95 | 4:00 |
+| Rooibos | 98 | 6:00 |
+| Herbal tea | 98 | 8:00 |
+| Fruit tea | 98 | 10:00 |
+
+Built-in teas leave the water amount alone, so the cup size stays yours. Once a
+setting is changed by hand, the select shows **Manual**.
+
+Add your own teas under **Configure** on the integration, one per line:
+
+```
+# name; °C; steep time[; ml]
+Earl Grey; 95; 3:30
+Chai; 98; 5m; 300
+```
+
+Values snap to what the machine supports (5 °C steps, 10 s steps below
+10 minutes, 25 ml steps).
+
+### Brew action
+
+`bru.brew` starts a brew and can set a tea and any of the values first. Values
+given explicitly win over the tea. All settings are kept for the next brew.
+
+```yaml
+action: bru.brew
+data:
+  device_id: 0123456789abcdef
+  tea: green
+  water: 300
+```
+
+### Debugging the protocol
+
+Enable debug logging on the integration page to log every advertisement whose
+bytes change, with the time since the previous change. The last 300 changes are
+also included in **Download diagnostics**, which is handy for spotting bytes
+that move during a brew.
+
+`brew_finished` fires when the machine reaches the "Ready to enjoy" screen,
+not when the cup is removed. `brew_cancelled` is only reported for cancels sent
+from Home Assistant; a cancel on the machine itself shows up as `brew_finished`.
 
 Firmware updates and log transfer are not exposed.
 

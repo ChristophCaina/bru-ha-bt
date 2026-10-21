@@ -49,8 +49,23 @@ class _BruNumber(RestoreNumber):
             value = last.native_value
         self._store(value)
         self.async_write_ha_state()
+        self.coordinator.async_notify()
 
     def _store(self, value: float) -> None:
+        raise NotImplementedError
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        self.async_on_remove(self.coordinator.async_add_listener(self._on_coordinator))
+
+    def _on_coordinator(self) -> None:
+        """Pick up changes made by the tea select or the brew action."""
+        value = self._coordinator_value()
+        if value != self._attr_native_value:
+            self._attr_native_value = value
+            self.async_write_ha_state()
+
+    def _coordinator_value(self) -> float:
         raise NotImplementedError
 
 
@@ -78,9 +93,13 @@ class BruTemperatureNumber(_BruNumber):
         self._attr_native_value = snapped
         self.coordinator.temperature_c = snapped
 
+    def _coordinator_value(self) -> float:
+        return self.coordinator.temperature_c
+
     async def async_set_native_value(self, value: float) -> None:
         self._store(value)
         self.async_write_ha_state()
+        self.coordinator.async_notify()
 
 
 class BruSteepTimeNumber(_BruNumber):
@@ -90,7 +109,7 @@ class BruSteepTimeNumber(_BruNumber):
     _attr_device_class = NumberDeviceClass.DURATION
     _attr_native_unit_of_measurement = UnitOfTime.SECONDS
     _attr_native_min_value = 10
-    _attr_native_max_value = 600
+    _attr_native_max_value = 3600
     _attr_native_step = 10
 
     def __init__(self, coordinator: BruCoordinator) -> None:
@@ -107,9 +126,13 @@ class BruSteepTimeNumber(_BruNumber):
         self._attr_native_value = snapped
         self.coordinator.steep_seconds = snapped
 
+    def _coordinator_value(self) -> float:
+        return self.coordinator.steep_seconds
+
     async def async_set_native_value(self, value: float) -> None:
         self._store(value)
         self.async_write_ha_state()
+        self.coordinator.async_notify()
 
 
 class BruWaterNumber(_BruNumber):
@@ -136,6 +159,10 @@ class BruWaterNumber(_BruNumber):
         self._attr_native_value = snapped
         self.coordinator.water_ml = snapped
 
+    def _coordinator_value(self) -> float:
+        return self.coordinator.water_ml
+
     async def async_set_native_value(self, value: float) -> None:
         self._store(value)
         self.async_write_ha_state()
+        self.coordinator.async_notify()

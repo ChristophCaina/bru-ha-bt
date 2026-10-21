@@ -1,0 +1,108 @@
+{
+  "entity": {
+    "binary_sensor": {
+      "brewing": {
+        "default": "mdi:kettle",
+        "state": {
+          "on": "mdi:kettle-steam"
+        }
+      },
+      "add_water": {
+        "default": "mdi:water-check",
+        "state": {
+          "on": "mdi:water-alert"
+        }
+      },
+      "place_cup": {
+        "default": "mdi:cup-outline",
+        "state": {
+          "on": "mdi:cup-off-outline"
+        }
+      },
+      "remove_cup": {
+        "default": "mdi:cup-outline",
+        "state": {
+          "on": "mdi:cup"
+        }
+      },
+      "close_lid": {
+        "default": "mdi:package-variant-closed",
+        "state": {
+          "on": "mdi:package-variant"
+        }
+      }
+    },
+    "button": {
+      "start_brew": {
+        "default": "mdi:play"
+      },
+      "cancel_brew": {
+        "default": "mdi:stop"
+      }
+    },
+    "event": {
+      "brew": {
+        "default": "mdi:tea",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "brew_started": "mdi:kettle-steam",
+              "brew_finished": "mdi:tea",
+              "brew_cancelled": "mdi:cancel"
+            }
+          }
+        }
+      }
+    },
+    "number": {
+      "temperature": {
+        "default": "mdi:thermometer-water"
+      },
+      "steep_time": {
+        "default": "mdi:timer-sand"
+      },
+      "water": {
+        "default": "mdi:cup-water"
+      }
+    },
+    "select": {
+      "tea": {
+        "default": "mdi:tea-outline"
+      }
+    },
+    "sensor": {
+      "status": {
+        "default": "mdi:tea",
+        "state": {
+          "idle": "mdi:sleep",
+          "standby": "mdi:power-sleep",
+          "filling": "mdi:water-plus",
+          "heating": "mdi:thermometer-water",
+          "steeping": "mdi:timer-sand",
+          "serving": "mdi:kettle-pour-over",
+          "rinsing": "mdi:water-sync",
+          "enjoy": "mdi:tea",
+          "add_water": "mdi:water-alert",
+          "place_cup": "mdi:cup-off-outline",
+          "remove_cup": "mdi:cup",
+          "close_lid": "mdi:package-variant",
+          "error": "mdi:alert-circle",
+          "warning": "mdi:alert",
+          "descaling": "mdi:water-sync",
+          "firmware_update": "mdi:update"
+        }
+      },
+      "steeping_since": {
+        "default": "mdi:timer-sand"
+      },
+      "ready_at": {
+        "default": "mdi:timer-check-outline"
+      }
+    }
+  },
+  "services": {
+    "brew": {
+      "service": "mdi:kettle-steam"
+    }
+  }
+}

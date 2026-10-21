@@ -1,0 +1,202 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "BRU Maker One",
+        "description": "Choose a machine that is advertising. The first connection needs pairing mode: Machine Setup, Pair New Device, until the display says Waiting for connection.",
+        "data": {
+          "address": "Machine"
+        }
+      },
+      "bluetooth_confirm": {
+        "title": "Set up {name}",
+        "description": "Add {name}? Pairing does not happen now. On the first Start brew the machine must show Waiting for connection, then confirm the code."
+      }
+    },
+    "abort": {
+      "not_supported": "This Bluetooth device is not a BRU machine.",
+      "no_devices_found": "No BRU machine is advertising. Turn Bluetooth on and, for a first bond, enable pairing mode.",
+      "already_configured": "This machine is already set up."
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "brew_started": "Brew started",
+      "brew_finished": "Tea is ready",
+      "brew_cancelled": "Brew cancelled",
+      "add_water": "Asks to add water",
+      "place_cup": "Asks for a cup",
+      "remove_cup": "Asks to remove the cup",
+      "close_lid": "Asks to close the lid",
+      "error": "Shows an error"
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "brewing": {
+        "name": "Brewing"
+      },
+      "add_water": {
+        "name": "Add water"
+      },
+      "place_cup": {
+        "name": "Cup missing"
+      },
+      "remove_cup": {
+        "name": "Remove cup"
+      },
+      "close_lid": {
+        "name": "Close lid"
+      },
+      "error": {
+        "name": "Error"
+      }
+    },
+    "button": {
+      "start_brew": {
+        "name": "Start brew"
+      },
+      "cancel_brew": {
+        "name": "Cancel"
+      }
+    },
+    "event": {
+      "brew": {
+        "name": "Brew",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "brew_started": "Brew started",
+              "brew_finished": "Brew finished",
+              "brew_cancelled": "Brew cancelled"
+            }
+          }
+        }
+      }
+    },
+    "number": {
+      "temperature": {
+        "name": "Temperature"
+      },
+      "steep_time": {
+        "name": "Steep time"
+      },
+      "water": {
+        "name": "Water"
+      }
+    },
+    "select": {
+      "tea": {
+        "name": "Tea",
+        "state": {
+          "manual": "Manual",
+          "green": "Green tea",
+          "sencha": "Sencha",
+          "white": "White tea",
+          "oolong": "Oolong",
+          "darjeeling": "Darjeeling",
+          "black": "Black tea",
+          "rooibos": "Rooibos",
+          "herbal": "Herbal tea",
+          "fruit": "Fruit tea"
+        }
+      }
+    },
+    "sensor": {
+      "status": {
+        "name": "Status",
+        "state": {
+          "ready": "Ready",
+          "idle": "Idle",
+          "filling": "Filling",
+          "heating": "Heating",
+          "adding_cold_water": "Adding cold water",
+          "steeping": "Steeping",
+          "rinse_delay": "Waiting to rinse",
+          "serving": "Serving",
+          "rinsing": "Rinsing",
+          "enjoy": "Tea is ready",
+          "dispensing": "Dispensing",
+          "timer": "Timer",
+          "place_cup": "Place a cup",
+          "remove_cup": "Remove the cup",
+          "close_lid": "Close the lid",
+          "open_lid": "Open the lid",
+          "add_water": "Add water",
+          "insert_chamber": "Insert the chamber",
+          "no_nozzle": "Nozzle missing",
+          "error": "Error",
+          "place_descaling_adapter": "Place the descaling adapter",
+          "firmware_update": "Firmware update",
+          "standby": "Standby",
+          "menu": "Menu",
+          "setup": "Settings",
+          "brewing": "Brewing",
+          "cold_tea": "Cold tea",
+          "split_cup": "Split cup",
+          "multi_steeping": "Multi-steeping",
+          "info": "Information",
+          "warning": "Warning",
+          "hot_tea": "Hot tea",
+          "test": "Test mode",
+          "drying": "Drying",
+          "descaling": "Descaling",
+          "lid_reminder": "Lid reminder",
+          "bluetooth": "Bluetooth menu",
+          "other": "Other"
+        }
+      },
+      "rssi": {
+        "name": "Signal strength"
+      },
+      "steeping_since": {
+        "name": "Steeping since"
+      },
+      "ready_at": {
+        "name": "Ready at"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Custom teas",
+        "description": "One tea per line: name; °C; steep time[; ml]. Steep time as 180, 3:00, or 3m30s. Water is optional, leave it out to keep the cup size. Lines starting with # are ignored.{error}",
+        "data": {
+          "custom_teas": "Teas"
+        }
+      }
+    },
+    "error": {
+      "invalid_teas": "Could not read the list."
+    }
+  },
+  "services": {
+    "brew": {
+      "name": "Brew",
+      "description": "Start a brew, optionally with a tea and individual settings. The settings are kept for the next brew.",
+      "fields": {
+        "device_id": {
+          "name": "Machine",
+          "description": "The BRU machine."
+        },
+        "tea": {
+          "name": "Tea",
+          "description": "Built-in key (green, sencha, white, oolong, darjeeling, black, rooibos, herbal, fruit) or a custom tea name."
+        },
+        "temperature": {
+          "name": "Temperature",
+          "description": "Overrides the tea's temperature."
+        },
+        "steep_time": {
+          "name": "Steep time",
+          "description": "Overrides the tea's steep time."
+        },
+        "water": {
+          "name": "Water",
+          "description": "Water amount in ml."
+        }
+      }
+    }
+  }
+}

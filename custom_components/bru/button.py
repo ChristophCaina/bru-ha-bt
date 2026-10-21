@@ -20,9 +20,7 @@ async def async_setup_entry(
 ) -> None:
     """Create the brew controls."""
     coordinator = entry.runtime_data
-    async_add_entities(
-        [BruStartButton(coordinator), BruCancelButton(coordinator)]
-    )
+    async_add_entities([BruStartButton(coordinator), BruCancelButton(coordinator)])
 
 
 class _BruButton(ButtonEntity):
@@ -32,12 +30,21 @@ class _BruButton(ButtonEntity):
         self.coordinator = coordinator
         self._attr_device_info = coordinator.device_info
 
+    @property
+    def available(self) -> bool:
+        return self.coordinator.available
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        self.async_on_remove(
+            self.coordinator.async_add_listener(self.async_write_ha_state)
+        )
+
 
 class BruStartButton(_BruButton):
     """Start a brew with the current temperature, time, and water amount."""
 
     _attr_translation_key = "start_brew"
-    _attr_icon = "mdi:play"
 
     def __init__(self, coordinator: BruCoordinator) -> None:
         super().__init__(coordinator)
@@ -54,7 +61,6 @@ class BruCancelButton(_BruButton):
     """Stop the process that is currently running."""
 
     _attr_translation_key = "cancel_brew"
-    _attr_icon = "mdi:stop"
 
     def __init__(self, coordinator: BruCoordinator) -> None:
         super().__init__(coordinator)

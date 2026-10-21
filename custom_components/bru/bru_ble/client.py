@@ -40,9 +40,7 @@ _PAIRING_HINT = (
 def _needs_bond(exc: BaseException) -> bool:
     """True when a GATT error means the link is not authenticated yet."""
     text = str(exc).lower()
-    return (
-        "insufficient authentication" in text or "insufficient encryption" in text
-    )
+    return "insufficient authentication" in text or "insufficient encryption" in text
 
 
 def _already_bonded(exc: BaseException) -> bool:
