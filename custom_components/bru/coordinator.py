@@ -77,6 +77,7 @@ class BruCoordinator:
         self.available = False
         self.rssi: int | None = None
         self._busy = False
+        self._device_id: str | None = None
         self._last_sub_status: str | None = None
         self._cancel_requested = False
         self._event_listeners: list[Callable[[str], None]] = []
@@ -338,11 +339,18 @@ class BruCoordinator:
 
     @property
     def device_id(self) -> str | None:
-        """Device registry id, for event payloads."""
-        device = dr.async_get(self.hass).async_get_device(
-            identifiers={(DOMAIN, self.address)}
-        )
-        return device.id if device else None
+        """Device registry id of this entry's machine, for event payloads.
+
+        Looked up through the config entry: identifiers are no longer unique
+        across entries, so async_get_device(identifiers=...) is deprecated.
+        """
+        if self._device_id is None:
+            devices = dr.async_entries_for_config_entry(
+                dr.async_get(self.hass), self.entry.entry_id
+            )
+            if devices:
+                self._device_id = devices[0].id
+        return self._device_id
 
     def _apply(self, service_info: BluetoothServiceInfoBleak) -> None:
         parsed = parse_advertisement(

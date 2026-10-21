@@ -98,7 +98,7 @@ async def test_select_loads_tea_and_falls_back_to_manual(hass, loaded):
 
 
 async def test_brew_action(hass, loaded):
-    device = dr.async_get(hass).async_get_device(identifiers={(DOMAIN, ADDRESS)})
+    device = dr.async_entries_for_config_entry(dr.async_get(hass), loaded.entry_id)[0]
     coordinator = loaded.runtime_data
     with patch.object(coordinator, "async_start_brew", AsyncMock()) as start:
         await hass.services.async_call(

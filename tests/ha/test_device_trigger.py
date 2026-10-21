@@ -38,7 +38,9 @@ async def setup(hass):
     ):
         assert await hass.config_entries.async_setup(entry.entry_id)
         await hass.async_block_till_done()
-        device = dr.async_get(hass).async_get_device(identifiers={(DOMAIN, ADDRESS)})
+        device = dr.async_entries_for_config_entry(dr.async_get(hass), entry.entry_id)[
+            0
+        ]
         yield entry.runtime_data, device
 
 
