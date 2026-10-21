@@ -43,7 +43,7 @@ PROMPTS: tuple[BruPromptDescription, ...] = (
     BruPromptDescription(
         key="close_lid",
         sub_status="msgCloseLid",
-        device_class=BinarySensorDeviceClass.OPENING,
+        device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     BruPromptDescription(
         key="error",

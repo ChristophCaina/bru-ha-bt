@@ -127,8 +127,10 @@ async def test_prompt_binary_sensors(hass, setup):
     await hass.async_block_till_done()
     assert hass.states.get("binary_sensor.bru_add_water").state == "on"
     assert hass.states.get("binary_sensor.bru_cup_missing").state == "off"
+    assert hass.states.get("binary_sensor.bru_close_lid").state == "off"
     assert (
-        hass.states.get("binary_sensor.bru_lid").attributes["device_class"] == "opening"
+        hass.states.get("binary_sensor.bru_close_lid").attributes["device_class"]
+        == "problem"
     )
     _step(coordinator, 1, 4)
     coordinator.async_notify()

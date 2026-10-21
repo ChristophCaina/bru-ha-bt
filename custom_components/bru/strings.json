@@ -46,7 +46,7 @@
         "name": "Remove cup"
       },
       "close_lid": {
-        "name": "Lid"
+        "name": "Close lid"
       },
       "error": {
         "name": "Error"
