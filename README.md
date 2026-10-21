@@ -22,6 +22,7 @@ Entities:
 - Status sensor
 - Brewing binary sensor (on from filling until the tea is ready)
 - Brew event entity: `brew_started`, `brew_finished`, `brew_cancelled`
+- Steeping since and Ready at (timestamps, shown as relative times)
 - Signal strength (diagnostic, disabled by default)
 - Temperature, steep time, and water amount
 - Start brew and Cancel
@@ -45,6 +46,18 @@ automation:
         data:
           message: Tea is ready.
 ```
+
+The machine does not report a remaining time. *Steeping since* is set when the
+machine enters the steeping phase. *Ready at* adds the steep time and is only
+filled for brews started from Home Assistant within the last 10 minutes; a brew
+started on the machine leaves it empty.
+
+### Debugging the protocol
+
+Enable debug logging on the integration page to log every advertisement whose
+bytes change, with the time since the previous change. The last 300 changes are
+also included in **Download diagnostics**, which is handy for spotting bytes
+that move during a brew.
 
 `brew_finished` fires when the machine reaches the "Ready to enjoy" screen,
 not when the cup is removed. `brew_cancelled` is only reported for cancels sent

@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+from collections import deque
+from datetime import datetime, timedelta
 import logging
 from typing import Any, Callable
 
@@ -16,6 +18,7 @@ from homeassistant.const import CONF_ADDRESS
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import CONNECTION_BLUETOOTH, DeviceInfo
+from homeassistant.util import dt as dt_util
 
 from .bru_ble.advertisement import parse_advertisement
 from .bru_ble.client import BruClient
@@ -33,6 +36,11 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+RAW_LOG_SIZE = 300
+# A brew started from HA must reach steeping within this window for its
+# steep time to be used for ready_at.
+HA_START_WINDOW = timedelta(minutes=10)
 
 
 class BruCoordinator:
@@ -53,6 +61,16 @@ class BruCoordinator:
         self._busy = False
         self._cancel_requested = False
         self._event_listeners: list[Callable[[str], None]] = []
+        # Steep timing. ready_at is only known for brews started from HA,
+        # because the machine does not advertise the configured steep time.
+        self.steeping_since: datetime | None = None
+        self.ready_at: datetime | None = None
+        self._brew_steep_seconds: int | None = None
+        self._brew_started_at: datetime | None = None
+        # Advertisement payloads, recorded only when the bytes change.
+        self.raw_log: deque[dict[str, Any]] = deque(maxlen=RAW_LOG_SIZE)
+        self._last_raw: tuple[Any, Any] | None = None
+        self._last_raw_time: datetime | None = None
         self._lock = asyncio.Lock()
         self.device_info = DeviceInfo(
             identifiers={(DOMAIN, self.address)},
@@ -144,6 +162,7 @@ class BruCoordinator:
     def _track_brew(self) -> None:
         """Turn brewing/idle transitions into brew lifecycle events."""
         busy = self.brewing
+        self._track_steeping(busy)
         if busy == self._busy:
             return
         self._busy = busy
@@ -153,6 +172,71 @@ class BruCoordinator:
         else:
             self._fire(BREW_CANCELLED if self._cancel_requested else BREW_FINISHED)
             self._cancel_requested = False
+            self._brew_steep_seconds = None
+            self._brew_started_at = None
+
+    def _track_steeping(self, busy: bool) -> None:
+        """Remember when steeping started and when the tea should be ready."""
+        if not busy:
+            self.steeping_since = None
+            self.ready_at = None
+            return
+        if self.state.sub_status != "brewingSteeping" or self.steeping_since:
+            return
+        self.steeping_since = dt_util.utcnow()
+        if (
+            self._brew_steep_seconds is not None
+            and self._brew_started_at is not None
+            and self.steeping_since - self._brew_started_at <= HA_START_WINDOW
+        ):
+            self.ready_at = self.steeping_since + timedelta(
+                seconds=self._brew_steep_seconds
+            )
+        _LOGGER.debug(
+            "BRU %s: steeping since %s, ready at %s",
+            self.address,
+            self.steeping_since,
+            self.ready_at,
+        )
+
+    def _record_raw(self, service_info: BluetoothServiceInfoBleak) -> None:
+        """Keep advertisement payloads whose bytes changed, for protocol work."""
+        manufacturer = {
+            str(cid): bytes(data).hex() for cid, data in service_info.manufacturer_data.items()
+        }
+        service = {
+            uuid: bytes(data).hex() for uuid, data in service_info.service_data.items()
+        }
+        key = (tuple(sorted(manufacturer.items())), tuple(sorted(service.items())))
+        if key == self._last_raw:
+            return
+        now = dt_util.utcnow()
+        delta = (
+            round((now - self._last_raw_time).total_seconds(), 1)
+            if self._last_raw_time
+            else None
+        )
+        self._last_raw = key
+        self._last_raw_time = now
+        entry = {
+            "time": now.isoformat(),
+            "delta_s": delta,
+            "manufacturer_data": manufacturer,
+            "service_data": service,
+            "status": self.state.status,
+            "sub_status": self.state.sub_status,
+            "rssi": service_info.rssi,
+        }
+        self.raw_log.append(entry)
+        _LOGGER.debug(
+            "BRU %s raw advert (+%ss) %s/%s mfr=%s svc=%s",
+            self.address,
+            delta,
+            self.state.status,
+            self.state.sub_status,
+            manufacturer,
+            service,
+        )
 
     def _fire(self, event_type: str) -> None:
         _LOGGER.debug("BRU %s: %s", self.address, event_type)
@@ -190,6 +274,7 @@ class BruCoordinator:
         self.rssi = service_info.rssi
         if parsed is not None and parsed.state is not None:
             self.state = parsed.state
+        self._record_raw(service_info)
 
     def _publish(self) -> None:
         for listener in list(self._listeners):
@@ -234,6 +319,8 @@ class BruCoordinator:
                     self.steep_seconds,
                     self.water_ml,
                 )
+                self._brew_steep_seconds = int(self.steep_seconds)
+                self._brew_started_at = dt_util.utcnow()
                 try:
                     self.state = await client.read_status()
                 except BruError:

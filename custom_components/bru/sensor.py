@@ -8,6 +8,8 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import SIGNAL_STRENGTH_DECIBELS_MILLIWATT, EntityCategory
+from datetime import datetime
+
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -22,7 +24,14 @@ async def async_setup_entry(
 ) -> None:
     """Create the status and signal sensors."""
     coordinator = entry.runtime_data
-    async_add_entities([BruStatusSensor(coordinator), BruRssiSensor(coordinator)])
+    async_add_entities(
+        [
+            BruStatusSensor(coordinator),
+            BruSteepingSinceSensor(coordinator),
+            BruReadyAtSensor(coordinator),
+            BruRssiSensor(coordinator),
+        ]
+    )
 
 
 class BruStatusSensor(SensorEntity):
@@ -93,3 +102,52 @@ class BruRssiSensor(SensorEntity):
         self.async_on_remove(
             self.coordinator.async_add_listener(self.async_write_ha_state)
         )
+
+
+class _BruTimestampSensor(SensorEntity):
+    """A timestamp the frontend shows as a relative time ("in 2 minutes")."""
+
+    _attr_has_entity_name = True
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    def __init__(self, coordinator: BruCoordinator, key: str) -> None:
+        self.coordinator = coordinator
+        self._attr_translation_key = key
+        self._attr_unique_id = f"{coordinator.address}_{key}"
+        self._attr_device_info = coordinator.device_info
+
+    @property
+    def available(self) -> bool:
+        return self.coordinator.available
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        self.async_on_remove(
+            self.coordinator.async_add_listener(self.async_write_ha_state)
+        )
+
+
+class BruSteepingSinceSensor(_BruTimestampSensor):
+    """When the current steep started. Empty when not brewing."""
+
+    _attr_icon = "mdi:timer-sand"
+
+    def __init__(self, coordinator: BruCoordinator) -> None:
+        super().__init__(coordinator, "steeping_since")
+
+    @property
+    def native_value(self) -> datetime | None:
+        return self.coordinator.steeping_since
+
+
+class BruReadyAtSensor(_BruTimestampSensor):
+    """When the steep ends. Only known for brews started from Home Assistant."""
+
+    _attr_icon = "mdi:timer-check-outline"
+
+    def __init__(self, coordinator: BruCoordinator) -> None:
+        super().__init__(coordinator, "ready_at")
+
+    @property
+    def native_value(self) -> datetime | None:
+        return self.coordinator.ready_at
