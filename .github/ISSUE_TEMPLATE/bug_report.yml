@@ -1,0 +1,55 @@
+name: Bug report
+description: Something does not work as described.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Integration version
+      placeholder: "0.2.0"
+    validations:
+      required: true
+  - type: input
+    id: ha
+    attributes:
+      label: Home Assistant version
+      placeholder: "2026.10.1"
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: Machine firmware
+      description: Shown in the BRU app or under Machine Setup.
+  - type: dropdown
+    id: link
+    attributes:
+      label: Bluetooth connection
+      options:
+        - Home Assistant host adapter
+        - ESPHome proxy with bru_bond
+        - ESPHome proxy without bru_bond
+        - Other / not sure
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: >
+        Integration page, three-dot menu, Download diagnostics. Drag the file
+        here. It contains the recent raw advertisements, which helps with
+        protocol questions.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Debug log
+      description: Enable debug logging on the integration page, reproduce, then paste the relevant lines.
+      render: text

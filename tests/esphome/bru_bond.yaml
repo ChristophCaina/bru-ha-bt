@@ -1,0 +1,34 @@
+# Build check for the bru_bond external component. Not meant to be flashed.
+esphome:
+  name: bru-bond-ci
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+external_components:
+  - source:
+      type: local
+      path: ../../components
+    components: [bru_bond]
+
+wifi:
+  ssid: ci
+  password: ci-password
+
+api:
+
+logger:
+
+esp32_ble:
+  io_capability: display_yes_no
+  auth_req_mode: sc_mitm_bond
+
+esp32_ble_tracker:
+
+bluetooth_proxy:
+  active: true
+
+bru_bond:
+  mac_address: "AA:BB:CC:DD:EE:FF"

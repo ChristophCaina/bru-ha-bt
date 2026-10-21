@@ -1,0 +1,15 @@
+name: Feature request
+description: An idea for the integration.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: What would you use it for?
+      description: An automation or dashboard you have in mind helps a lot.
