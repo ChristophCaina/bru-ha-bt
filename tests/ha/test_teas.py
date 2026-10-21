@@ -29,7 +29,9 @@ WATER = "number.bru_water"
 
 
 def test_parse_custom_teas():
-    teas = parse_custom_teas("# mine\nEarl Grey; 95; 3:30\nMatcha; 81°C; 1m30s; 140 ml\n")
+    teas = parse_custom_teas(
+        "# mine\nEarl Grey; 95; 3:30\nMatcha; 81°C; 1m30s; 140 ml\n"
+    )
     assert [(t.key, t.temperature_c, t.steep_seconds, t.water_ml) for t in teas] == [
         ("Earl Grey", 95, 210, None),
         ("Matcha", 80, 90, 150),  # snapped to machine steps
@@ -52,10 +54,13 @@ async def loaded(hass: HomeAssistant):
         unique_id=ADDRESS,
     )
     entry.add_to_hass(hass)
-    with patch(
-        "custom_components.bru.coordinator.BruCoordinator.async_start",
-        AsyncMock(),
-    ), patch("custom_components.bru.coordinator.BruCoordinator.async_stop"):
+    with (
+        patch(
+            "custom_components.bru.coordinator.BruCoordinator.async_start",
+            AsyncMock(),
+        ),
+        patch("custom_components.bru.coordinator.BruCoordinator.async_stop"),
+    ):
         assert await hass.config_entries.async_setup(entry.entry_id)
         await hass.async_block_till_done()
         yield entry
@@ -68,7 +73,10 @@ async def test_select_loads_tea_and_falls_back_to_manual(hass, loaded):
     assert "Earl Grey" in state.attributes["options"]
 
     await hass.services.async_call(
-        "select", "select_option", {"entity_id": SELECT, "option": "black"}, blocking=True
+        "select",
+        "select_option",
+        {"entity_id": SELECT, "option": "black"},
+        blocking=True,
     )
     assert hass.states.get(SELECT).state == "black"
     assert float(hass.states.get(TEMP).state) == 95
@@ -80,7 +88,10 @@ async def test_select_loads_tea_and_falls_back_to_manual(hass, loaded):
     assert hass.states.get(SELECT).state == "manual"
 
     await hass.services.async_call(
-        "select", "select_option", {"entity_id": SELECT, "option": "Earl Grey"}, blocking=True
+        "select",
+        "select_option",
+        {"entity_id": SELECT, "option": "Earl Grey"},
+        blocking=True,
     )
     assert float(hass.states.get(WATER).state) == 300
     assert hass.states.get(SELECT).attributes["steep_seconds"] == 210
@@ -114,9 +125,12 @@ async def test_options_flow_validates_and_reloads(hass, loaded):
         result["flow_id"], {CONF_CUSTOM_TEAS: "broken line"}
     )
     assert result["errors"] == {CONF_CUSTOM_TEAS: "invalid_teas"}
-    with patch(
-        "custom_components.bru.coordinator.BruCoordinator.async_start", AsyncMock()
-    ), patch("custom_components.bru.coordinator.BruCoordinator.async_stop"):
+    with (
+        patch(
+            "custom_components.bru.coordinator.BruCoordinator.async_start", AsyncMock()
+        ),
+        patch("custom_components.bru.coordinator.BruCoordinator.async_stop"),
+    ):
         result = await hass.config_entries.options.async_configure(
             result["flow_id"], {CONF_CUSTOM_TEAS: "Chai; 98; 5:00"}
         )

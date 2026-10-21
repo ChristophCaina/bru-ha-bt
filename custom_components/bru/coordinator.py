@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import asyncio
 from collections import deque
+from collections.abc import Callable
 from datetime import datetime, timedelta
 import logging
-from typing import Any, Callable
+from typing import Any
 
 from homeassistant.components import bluetooth, persistent_notification
 from homeassistant.components.bluetooth import (
@@ -35,14 +36,13 @@ from .const import (
     BREW_STARTED,
     CONF_CUSTOM_TEAS,
     DEFAULT_STEEP_SECONDS,
-    EVENT_BREW,
-    EVENT_PROMPT,
-    PROMPT_SUBSTATUSES,
     DEFAULT_TEMPERATURE_C,
     DEFAULT_WATER_ML,
     DOMAIN,
+    EVENT_BREW,
+    EVENT_PROMPT,
+    PROMPT_SUBSTATUSES,
 )
-
 from .teas import MANUAL, Tea, TeaParseError, all_teas
 
 _LOGGER = logging.getLogger(__name__)
@@ -283,7 +283,8 @@ class BruCoordinator:
     def _record_raw(self, service_info: BluetoothServiceInfoBleak) -> None:
         """Keep advertisement payloads whose bytes changed, for protocol work."""
         manufacturer = {
-            str(cid): bytes(data).hex() for cid, data in service_info.manufacturer_data.items()
+            str(cid): bytes(data).hex()
+            for cid, data in service_info.manufacturer_data.items()
         }
         service = {
             uuid: bytes(data).hex() for uuid, data in service_info.service_data.items()

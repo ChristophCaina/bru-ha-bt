@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 from bleak.exc import BleakError
-import voluptuous as vol
-
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant, ServiceCall, callback
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import config_validation as cv, device_registry as dr
+import voluptuous as vol
 
 from .bru_ble.errors import BruError
 from .const import DOMAIN, SERVICE_BREW
@@ -24,9 +23,7 @@ BREW_SCHEMA = vol.Schema(
         vol.Required(ATTR_DEVICE_ID): cv.string,
         vol.Optional(ATTR_TEA): cv.string,
         vol.Optional(ATTR_TEMPERATURE): vol.All(vol.Coerce(int), vol.Range(0, 98)),
-        vol.Optional(ATTR_STEEP_TIME): vol.All(
-            cv.time_period, cv.positive_timedelta
-        ),
+        vol.Optional(ATTR_STEEP_TIME): vol.All(cv.time_period, cv.positive_timedelta),
         vol.Optional(ATTR_WATER): vol.All(vol.Coerce(int), vol.Range(50, 350)),
     }
 )

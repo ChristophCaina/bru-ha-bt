@@ -14,8 +14,8 @@ from homeassistant.config_entries import (
     ConfigFlowResult,
     OptionsFlow,
 )
-from homeassistant.core import callback
 from homeassistant.const import CONF_ADDRESS
+from homeassistant.core import callback
 
 from .bru_ble.advertisement import looks_like_bru
 from .const import CONF_CUSTOM_TEAS, DOMAIN
@@ -94,8 +94,8 @@ class BruConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 def _address_schema(discovered: dict[str, str]):
-    import voluptuous as vol
     from homeassistant.helpers import selector
+    import voluptuous as vol
 
     return vol.Schema(
         {
@@ -118,8 +118,8 @@ class BruOptionsFlow(OptionsFlow):
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        import voluptuous as vol
         from homeassistant.helpers import selector
+        import voluptuous as vol
 
         errors: dict[str, str] = {}
         placeholders = {"error": ""}

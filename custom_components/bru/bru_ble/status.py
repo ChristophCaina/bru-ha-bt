@@ -281,9 +281,7 @@ def _build_time_table() -> dict[int, int]:
 
 
 SECONDS_TO_TIME_BYTE = _build_time_table()
-TIME_BYTE_TO_SECONDS = {
-    byte: seconds for seconds, byte in SECONDS_TO_TIME_BYTE.items()
-}
+TIME_BYTE_TO_SECONDS = {byte: seconds for seconds, byte in SECONDS_TO_TIME_BYTE.items()}
 
 
 def nearest_temperature_c(celsius: float) -> int:

@@ -88,6 +88,4 @@ def parse_advertisement(
             if key.lower() == SERVICE_UUID:
                 state = state_from_bytes(payload, "advertising")
                 break
-    return DiscoveredMachine(
-        address=address, name=name, rssi=rssi, state=state
-    )
+    return DiscoveredMachine(address=address, name=name, rssi=rssi, state=state)

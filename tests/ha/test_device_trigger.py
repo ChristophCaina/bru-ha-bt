@@ -30,9 +30,12 @@ async def setup(hass):
         domain=DOMAIN, data={"address": ADDRESS}, title="BRU", unique_id=ADDRESS
     )
     entry.add_to_hass(hass)
-    with patch(
-        "custom_components.bru.coordinator.BruCoordinator.async_start", AsyncMock()
-    ), patch("custom_components.bru.coordinator.BruCoordinator.async_stop"):
+    with (
+        patch(
+            "custom_components.bru.coordinator.BruCoordinator.async_start", AsyncMock()
+        ),
+        patch("custom_components.bru.coordinator.BruCoordinator.async_stop"),
+    ):
         assert await hass.config_entries.async_setup(entry.entry_id)
         await hass.async_block_till_done()
         device = dr.async_get(hass).async_get_device(identifiers={(DOMAIN, ADDRESS)})
@@ -82,7 +85,9 @@ async def _automation(hass, device_id, trigger_type):
 
 
 def _step(coordinator, status, sub):
-    coordinator.state = MachineState(status_code=status, sub_status_code=sub, source="adv")
+    coordinator.state = MachineState(
+        status_code=status, sub_status_code=sub, source="adv"
+    )
     coordinator._track_brew()
 
 
@@ -122,7 +127,9 @@ async def test_prompt_binary_sensors(hass, setup):
     await hass.async_block_till_done()
     assert hass.states.get("binary_sensor.bru_add_water").state == "on"
     assert hass.states.get("binary_sensor.bru_cup_missing").state == "off"
-    assert hass.states.get("binary_sensor.bru_lid").attributes["device_class"] == "opening"
+    assert (
+        hass.states.get("binary_sensor.bru_lid").attributes["device_class"] == "opening"
+    )
     _step(coordinator, 1, 4)
     coordinator.async_notify()
     await hass.async_block_till_done()

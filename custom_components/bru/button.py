@@ -20,9 +20,7 @@ async def async_setup_entry(
 ) -> None:
     """Create the brew controls."""
     coordinator = entry.runtime_data
-    async_add_entities(
-        [BruStartButton(coordinator), BruCancelButton(coordinator)]
-    )
+    async_add_entities([BruStartButton(coordinator), BruCancelButton(coordinator)])
 
 
 class _BruButton(ButtonEntity):
