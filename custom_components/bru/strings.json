@@ -35,6 +35,21 @@
     "binary_sensor": {
       "brewing": {
         "name": "Brewing"
+      },
+      "add_water": {
+        "name": "Add water"
+      },
+      "place_cup": {
+        "name": "Cup missing"
+      },
+      "remove_cup": {
+        "name": "Remove cup"
+      },
+      "close_lid": {
+        "name": "Lid"
+      },
+      "error": {
+        "name": "Error"
       }
     },
     "button": {

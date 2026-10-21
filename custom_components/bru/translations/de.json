@@ -35,6 +35,21 @@
     "binary_sensor": {
       "brewing": {
         "name": "Brüht"
+      },
+      "add_water": {
+        "name": "Wasser nachfüllen"
+      },
+      "place_cup": {
+        "name": "Tasse fehlt"
+      },
+      "remove_cup": {
+        "name": "Tasse entnehmen"
+      },
+      "close_lid": {
+        "name": "Deckel"
+      },
+      "error": {
+        "name": "Fehler"
       }
     },
     "button": {

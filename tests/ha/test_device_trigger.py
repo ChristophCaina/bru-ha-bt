@@ -112,3 +112,18 @@ async def test_other_device_does_not_trigger(hass, setup):
     _step(coordinator, 11, 124)
     await hass.async_block_till_done()
     assert calls == []
+
+
+async def test_prompt_binary_sensors(hass, setup):
+    coordinator, _ = setup
+    coordinator.available = True
+    _step(coordinator, 11, 124)  # msgAddWater
+    coordinator.async_notify()
+    await hass.async_block_till_done()
+    assert hass.states.get("binary_sensor.bru_add_water").state == "on"
+    assert hass.states.get("binary_sensor.bru_cup_missing").state == "off"
+    assert hass.states.get("binary_sensor.bru_lid").attributes["device_class"] == "opening"
+    _step(coordinator, 1, 4)
+    coordinator.async_notify()
+    await hass.async_block_till_done()
+    assert hass.states.get("binary_sensor.bru_add_water").state == "off"
