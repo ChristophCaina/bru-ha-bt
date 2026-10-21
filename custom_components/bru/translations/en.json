@@ -58,6 +58,23 @@
         "name": "Water"
       }
     },
+    "select": {
+      "tea": {
+        "name": "Tea",
+        "state": {
+          "manual": "Manual",
+          "green": "Green tea",
+          "sencha": "Sencha",
+          "white": "White tea",
+          "oolong": "Oolong",
+          "darjeeling": "Darjeeling",
+          "black": "Black tea",
+          "rooibos": "Rooibos",
+          "herbal": "Herbal tea",
+          "fruit": "Fruit tea"
+        }
+      }
+    },
     "sensor": {
       "status": {
         "name": "Status",
@@ -237,6 +254,48 @@
       },
       "ready_at": {
         "name": "Ready at"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Custom teas",
+        "description": "One tea per line: name; °C; steep time[; ml]. Steep time as 180, 3:00, or 3m30s. Water is optional, leave it out to keep the cup size. Lines starting with # are ignored.{error}",
+        "data": {
+          "custom_teas": "Teas"
+        }
+      }
+    },
+    "error": {
+      "invalid_teas": "Could not read the list."
+    }
+  },
+  "services": {
+    "brew": {
+      "name": "Brew",
+      "description": "Start a brew, optionally with a tea and individual settings. The settings are kept for the next brew.",
+      "fields": {
+        "device_id": {
+          "name": "Machine",
+          "description": "The BRU machine."
+        },
+        "tea": {
+          "name": "Tea",
+          "description": "Built-in key (green, sencha, white, oolong, darjeeling, black, rooibos, herbal, fruit) or a custom tea name."
+        },
+        "temperature": {
+          "name": "Temperature",
+          "description": "Overrides the tea's temperature."
+        },
+        "steep_time": {
+          "name": "Steep time",
+          "description": "Overrides the tea's steep time."
+        },
+        "water": {
+          "name": "Water",
+          "description": "Water amount in ml."
+        }
       }
     }
   }

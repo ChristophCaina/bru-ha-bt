@@ -58,6 +58,23 @@
         "name": "Wassermenge"
       }
     },
+    "select": {
+      "tea": {
+        "name": "Tee",
+        "state": {
+          "manual": "Manuell",
+          "green": "Grüntee",
+          "sencha": "Sencha",
+          "white": "Weißer Tee",
+          "oolong": "Oolong",
+          "darjeeling": "Darjeeling",
+          "black": "Schwarztee",
+          "rooibos": "Rooibos",
+          "herbal": "Kräutertee",
+          "fruit": "Früchtetee"
+        }
+      }
+    },
     "sensor": {
       "status": {
         "name": "Status",
@@ -237,6 +254,48 @@
       },
       "ready_at": {
         "name": "Fertig um"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Eigene Teesorten",
+        "description": "Eine Sorte pro Zeile: Name; °C; Ziehzeit[; ml]. Ziehzeit als 180, 3:00 oder 3m30s. Die Wassermenge ist optional; ohne sie bleibt die Tassengröße erhalten. Zeilen mit # werden ignoriert.{error}",
+        "data": {
+          "custom_teas": "Teesorten"
+        }
+      }
+    },
+    "error": {
+      "invalid_teas": "Die Liste konnte nicht gelesen werden."
+    }
+  },
+  "services": {
+    "brew": {
+      "name": "Brühen",
+      "description": "Startet einen Brühvorgang, optional mit Teesorte und einzelnen Werten. Die Werte bleiben für den nächsten Brühvorgang gespeichert.",
+      "fields": {
+        "device_id": {
+          "name": "Maschine",
+          "description": "Die BRU-Maschine."
+        },
+        "tea": {
+          "name": "Tee",
+          "description": "Eingebaute Sorte (green, sencha, white, oolong, darjeeling, black, rooibos, herbal, fruit) oder Name einer eigenen Sorte."
+        },
+        "temperature": {
+          "name": "Temperatur",
+          "description": "Überschreibt die Temperatur der Sorte."
+        },
+        "steep_time": {
+          "name": "Ziehzeit",
+          "description": "Überschreibt die Ziehzeit der Sorte."
+        },
+        "water": {
+          "name": "Wassermenge",
+          "description": "Wassermenge in ml."
+        }
       }
     }
   }
