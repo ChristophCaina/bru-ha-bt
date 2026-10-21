@@ -231,6 +231,12 @@
       },
       "rssi": {
         "name": "Signal strength"
+      },
+      "steeping_since": {
+        "name": "Steeping since"
+      },
+      "ready_at": {
+        "name": "Ready at"
       }
     }
   }
