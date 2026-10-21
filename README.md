@@ -24,6 +24,7 @@ Entities:
 - Brew event entity: `brew_started`, `brew_finished`, `brew_cancelled`
 - Steeping since and Ready at (timestamps, shown as relative times)
 - Signal strength (diagnostic, disabled by default)
+- Tea select (built-in teas plus your own, see below)
 - Temperature, steep time, and water amount
 - Start brew and Cancel
 
@@ -51,6 +52,49 @@ The machine does not report a remaining time. *Steeping since* is set when the
 machine enters the steeping phase. *Ready at* adds the steep time and is only
 filled for brews started from Home Assistant within the last 10 minutes; a brew
 started on the machine leaves it empty.
+
+### Teas
+
+The **Tea** select loads temperature and steep time. Built-in teas:
+
+| Tea | °C | Steep time |
+| --- | --- | --- |
+| Green tea | 80 | 2:00 |
+| Sencha | 70 | 1:00 |
+| White tea | 80 | 3:00 |
+| Oolong | 90 | 3:00 |
+| Darjeeling | 85 | 3:00 |
+| Black tea | 95 | 4:00 |
+| Rooibos | 98 | 6:00 |
+| Herbal tea | 98 | 8:00 |
+| Fruit tea | 98 | 10:00 |
+
+Built-in teas leave the water amount alone, so the cup size stays yours. Once a
+setting is changed by hand, the select shows **Manual**.
+
+Add your own teas under **Configure** on the integration, one per line:
+
+```
+# name; °C; steep time[; ml]
+Earl Grey; 95; 3:30
+Chai; 98; 5m; 300
+```
+
+Values snap to what the machine supports (5 °C steps, 10 s steps below
+10 minutes, 25 ml steps).
+
+### Brew action
+
+`bru.brew` starts a brew and can set a tea and any of the values first. Values
+given explicitly win over the tea. All settings are kept for the next brew.
+
+```yaml
+action: bru.brew
+data:
+  device_id: 0123456789abcdef
+  tea: green
+  water: 300
+```
 
 ### Debugging the protocol
 

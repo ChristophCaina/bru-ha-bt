@@ -1,0 +1,27 @@
+brew:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: bru
+    tea:
+      example: green
+      selector:
+        text:
+    temperature:
+      selector:
+        number:
+          min: 0
+          max: 98
+          unit_of_measurement: "°C"
+    steep_time:
+      selector:
+        duration:
+    water:
+      selector:
+        number:
+          min: 50
+          max: 350
+          step: 25
+          unit_of_measurement: ml

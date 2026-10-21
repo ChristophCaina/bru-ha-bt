@@ -23,17 +23,25 @@ from homeassistant.util import dt as dt_util
 from .bru_ble.advertisement import parse_advertisement
 from .bru_ble.client import BruClient
 from .bru_ble.errors import BruError
-from .bru_ble.status import MachineState
+from .bru_ble.status import (
+    MachineState,
+    nearest_steep_seconds,
+    nearest_temperature_c,
+    nearest_water_ml,
+)
 from .const import (
     BREW_CANCELLED,
     BREW_FINISHED,
     BREW_STARTED,
+    CONF_CUSTOM_TEAS,
     DEFAULT_STEEP_SECONDS,
     EVENT_BREW,
     DEFAULT_TEMPERATURE_C,
     DEFAULT_WATER_ML,
     DOMAIN,
 )
+
+from .teas import MANUAL, Tea, TeaParseError, all_teas
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -55,6 +63,14 @@ class BruCoordinator:
         self.steep_seconds = DEFAULT_STEEP_SECONDS
         self.water_ml = DEFAULT_WATER_ML
         self._listeners: list[Callable[[], None]] = []
+        self.selected_tea: str = MANUAL
+        try:
+            self.teas: dict[str, Tea] = all_teas(
+                entry.options.get(CONF_CUSTOM_TEAS, "")
+            )
+        except TeaParseError as err:
+            _LOGGER.warning("Ignoring custom teas: %s", err)
+            self.teas = all_teas("")
         self._unsub: list[Callable[[], None]] = []
         self.available = False
         self.rssi: int | None = None
@@ -119,6 +135,51 @@ class BruCoordinator:
                 self._listeners.remove(update_callback)
 
         return _remove
+
+    @property
+    def current_tea(self) -> str:
+        """The selected tea while the settings still match it, else manual."""
+        tea = self.teas.get(self.selected_tea)
+        if tea is None:
+            return MANUAL
+        if (
+            tea.temperature_c != self.temperature_c
+            or tea.steep_seconds != self.steep_seconds
+            or (tea.water_ml is not None and tea.water_ml != self.water_ml)
+        ):
+            return MANUAL
+        return tea.key
+
+    def apply_settings(
+        self,
+        *,
+        temperature_c: float | None = None,
+        steep_seconds: float | None = None,
+        water_ml: float | None = None,
+    ) -> None:
+        """Snap and store brew settings, then tell the entities."""
+        if temperature_c is not None:
+            self.temperature_c = nearest_temperature_c(temperature_c)
+        if steep_seconds is not None:
+            self.steep_seconds = nearest_steep_seconds(steep_seconds)
+        if water_ml is not None:
+            self.water_ml = nearest_water_ml(water_ml)
+        self._publish()
+
+    def select_tea(self, key: str) -> None:
+        """Load a tea's settings. manual only changes the selection."""
+        if key != MANUAL and key not in self.teas:
+            raise KeyError(key)
+        self.selected_tea = key
+        tea = self.teas.get(key)
+        if tea is None:
+            self._publish()
+            return
+        self.apply_settings(
+            temperature_c=tea.temperature_c,
+            steep_seconds=tea.steep_seconds,
+            water_ml=tea.water_ml,
+        )
 
     def async_add_event_listener(
         self, event_callback: Callable[[str], None]
@@ -275,6 +336,10 @@ class BruCoordinator:
         if parsed is not None and parsed.state is not None:
             self.state = parsed.state
         self._record_raw(service_info)
+
+    def async_notify(self) -> None:
+        """Let entities refresh after a setting changed elsewhere."""
+        self._publish()
 
     def _publish(self) -> None:
         for listener in list(self._listeners):
