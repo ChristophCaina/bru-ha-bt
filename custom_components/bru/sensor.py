@@ -14,7 +14,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import BruConfigEntry
-from .bru_ble.status import state_options
+from .bru_ble.status import STATE_KEYS
 from .coordinator import BruCoordinator
 
 
@@ -41,7 +41,7 @@ class BruStatusSensor(SensorEntity):
     _attr_has_entity_name = True
     _attr_translation_key = "status"
     _attr_device_class = SensorDeviceClass.ENUM
-    _attr_icon = "mdi:tea"
+    _attr_options = STATE_KEYS
 
     def __init__(self, coordinator: BruCoordinator) -> None:
         self.coordinator = coordinator
@@ -49,17 +49,12 @@ class BruStatusSensor(SensorEntity):
         self._attr_device_info = coordinator.device_info
 
     @property
-    def options(self) -> list[str]:
-        """States the automation editor can offer in a dropdown."""
-        return state_options(self.coordinator.state.label)
-
-    @property
     def available(self) -> bool:
         return self.coordinator.available
 
     @property
-    def native_value(self) -> str:
-        return self.coordinator.state.label
+    def native_value(self) -> str | None:
+        return self.coordinator.state.key
 
     @property
     def extra_state_attributes(self) -> dict[str, object]:
@@ -137,8 +132,6 @@ class _BruTimestampSensor(SensorEntity):
 class BruSteepingSinceSensor(_BruTimestampSensor):
     """When the current steep started. Empty when not brewing."""
 
-    _attr_icon = "mdi:timer-sand"
-
     def __init__(self, coordinator: BruCoordinator) -> None:
         super().__init__(coordinator, "steeping_since")
 
@@ -149,8 +142,6 @@ class BruSteepingSinceSensor(_BruTimestampSensor):
 
 class BruReadyAtSensor(_BruTimestampSensor):
     """When the steep ends. Only known for brews started from Home Assistant."""
-
-    _attr_icon = "mdi:timer-check-outline"
 
     def __init__(self, coordinator: BruCoordinator) -> None:
         super().__init__(coordinator, "ready_at")

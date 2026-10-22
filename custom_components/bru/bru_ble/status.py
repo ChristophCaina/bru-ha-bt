@@ -201,6 +201,65 @@ FRIENDLY_SUBSTATUS: dict[str, str] = {
     "msgPlaceDescaling": "Place the descaling adapter",
 }
 
+# Stable, translatable keys for the Home Assistant status sensor. A known
+# sub-status wins; otherwise the main status decides.
+SUBSTATUS_KEYS: dict[str, str] = {
+    "homeScreen": "ready",
+    "homeScreensaver": "idle",
+    "brewingFillingUp": "filling",
+    "brewingHotWater": "heating",
+    "brewingColdWater": "adding_cold_water",
+    "brewingSteeping": "steeping",
+    "brewingRinseDelay": "rinse_delay",
+    "brewingServing": "serving",
+    "brewingRinse": "rinsing",
+    "brewingEnjoy": "enjoy",
+    "dispensing": "dispensing",
+    "timerRunning": "timer",
+    "msgPlaceCup": "place_cup",
+    "msgRemoveCup": "remove_cup",
+    "msgCloseLid": "close_lid",
+    "msgOpenLid": "open_lid",
+    "msgAddWater": "add_water",
+    "msgInsertChamber": "insert_chamber",
+    "msgNoNozzle": "no_nozzle",
+    "msgError": "error",
+    "msgPlaceDescaling": "place_descaling_adapter",
+    "firmwareUpdate": "firmware_update",
+}
+
+STATUS_KEYS: dict[str, str] = {
+    "StandbyMode": "standby",
+    "FunctionMenu": "menu",
+    "MachineSetup": "setup",
+    "MachineSetupHidden": "setup",
+    "Brewing": "brewing",
+    "Dispensing": "dispensing",
+    "AlarmTimer": "timer",
+    "ColdTea": "cold_tea",
+    "SplitCup": "split_cup",
+    "MultiSteeping": "multi_steeping",
+    "InfoMessge": "info",
+    "WarningMessage": "warning",
+    "ErrorMessage": "error",
+    "HotTea": "hot_tea",
+    "ManufTest": "test",
+    "ManualTest": "test",
+    "DurabPVtest": "test",
+    "DurabPumptest": "test",
+    "DurabHeatertest": "test",
+    "DurabFulltest": "test",
+    "Drying": "drying",
+    "Descaling": "descaling",
+    "LidReminder": "lid_reminder",
+    "BluetoothMenu": "bluetooth",
+}
+
+OTHER_KEY = "other"
+STATE_KEYS: list[str] = sorted(
+    {*SUBSTATUS_KEYS.values(), *STATUS_KEYS.values(), OTHER_KEY}
+)
+
 TEMPERATURE_C_TO_BYTE: dict[int, int] = {
     0: 0,
     45: 1,
@@ -336,26 +395,6 @@ def friendly_state(status: str | None, sub_status: str | None) -> str:
     return "Unknown"
 
 
-def _known_state_labels() -> tuple[str, ...]:
-    """Every label a known status or sub-status can show."""
-    labels = {friendly_state(status, None) for status in STATUS_NAMES.values()}
-    labels.update(
-        friendly_state(None, sub_status) for sub_status in SUBSTATUS_NAMES.values()
-    )
-    return tuple(sorted(labels))
-
-
-_KNOWN_STATE_LABELS = _known_state_labels()
-_KNOWN_STATE_LABEL_SET = frozenset(_KNOWN_STATE_LABELS)
-
-
-def state_options(current: str | None = None) -> list[str]:
-    """Known labels, plus a live value the table does not list yet."""
-    if current and current not in _KNOWN_STATE_LABEL_SET:
-        return [*_KNOWN_STATE_LABELS, current]
-    return list(_KNOWN_STATE_LABELS)
-
-
 @dataclass(frozen=True)
 class MachineState:
     """Decoded machine state from an advertisement or a status notification."""
@@ -381,6 +420,15 @@ class MachineState:
     @property
     def label(self) -> str:
         return friendly_state(self.status, self.sub_status)
+
+    @property
+    def key(self) -> str | None:
+        """Translatable state key, or None before any state was seen."""
+        if self.status_code is None and self.sub_status_code is None:
+            return None
+        if self.sub_status in SUBSTATUS_KEYS:
+            return SUBSTATUS_KEYS[self.sub_status]
+        return STATUS_KEYS.get(self.status or "", OTHER_KEY)
 
     @property
     def busy(self) -> bool:

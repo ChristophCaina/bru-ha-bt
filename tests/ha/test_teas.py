@@ -123,3 +123,18 @@ async def test_options_flow_validates_and_reloads(hass, loaded):
         await hass.async_block_till_done()
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert "Chai" in hass.states.get(SELECT).attributes["options"]
+
+
+async def test_status_sensor_is_a_translated_enum(hass, loaded):
+    from custom_components.bru.bru_ble.status import MachineState
+
+    coordinator = loaded.runtime_data
+    coordinator.available = True
+    coordinator.state = MachineState(status_code=5, sub_status_code=25)
+    coordinator.async_notify()
+    await hass.async_block_till_done()
+    state = hass.states.get("sensor.bru_status")
+    assert state.state == "filling"
+    assert state.attributes["device_class"] == "enum"
+    assert "steeping" in state.attributes["options"]
+    assert state.attributes["sub_status"] == "brewingFillingUp"

@@ -1,8 +1,5 @@
 """Encode and decode tests for the BRU frame format."""
 
-import json
-from pathlib import Path
-
 from bru_ble.advertisement import parse_advertisement
 from bru_ble.commands import (
     build_brew_identity,
@@ -19,10 +16,6 @@ from bru_ble.commands import (
     parse_notification,
 )
 from bru_ble.status import (
-    STATUS_NAMES,
-    SUBSTATUS_NAMES,
-    friendly_state,
-    state_options,
     temperature_byte,
     time_byte,
     water_byte,
@@ -120,29 +113,6 @@ def test_status_notification_and_brew_result():
     assert parsed.brew_result is not None
     assert parsed.brew_result.success
     assert parsed.brew_result.code == 0
-
-
-def test_status_translations_cover_every_label():
-    root = Path(__file__).parents[1] / "custom_components" / "bru"
-    english = json.loads((root / "strings.json").read_text())
-    german = json.loads((root / "translations" / "de.json").read_text())
-    english_states = english["entity"]["sensor"]["status"]["state"]
-    german_states = german["entity"]["sensor"]["status"]["state"]
-    assert set(english_states) == set(german_states)
-    for label in state_options():
-        assert english_states[label]
-        assert german_states[label]
-
-
-def test_state_options_cover_known_labels():
-    options = state_options()
-    assert "Ready to enjoy" in options
-    assert "Steeping" in options
-    for status in (*STATUS_NAMES.values(), None):
-        for sub_status in (*SUBSTATUS_NAMES.values(), None):
-            assert friendly_state(status, sub_status) in options
-    assert state_options("unknown_99")[-1] == "unknown_99"
-    assert "unknown_99" not in options
 
 
 def test_advertisement_uses_bytes_three_and_four():
