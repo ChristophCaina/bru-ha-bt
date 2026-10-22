@@ -7,7 +7,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import BruConfigEntry
-from .bru_ble.status import state_options
+from .bru_ble.status import state_key, state_options
 from .coordinator import BruCoordinator
 
 
@@ -40,7 +40,7 @@ class BruStatusSensor(SensorEntity):
 
     @property
     def native_value(self) -> str:
-        return self.coordinator.state.label
+        return state_key(self.coordinator.state.label)
 
     @property
     def extra_state_attributes(self) -> dict[str, object]:

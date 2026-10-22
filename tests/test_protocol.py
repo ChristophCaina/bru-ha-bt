@@ -22,6 +22,7 @@ from bru_ble.status import (
     STATUS_NAMES,
     SUBSTATUS_NAMES,
     friendly_state,
+    state_key,
     state_options,
     temperature_byte,
     time_byte,
@@ -129,18 +130,21 @@ def test_status_translations_cover_every_label():
     english_states = english["entity"]["sensor"]["status"]["state"]
     german_states = german["entity"]["sensor"]["status"]["state"]
     assert set(english_states) == set(german_states)
-    for label in state_options():
-        assert english_states[label]
-        assert german_states[label]
+    for key in state_options():
+        assert key.isascii() and key == state_key(key)
+        assert not key.startswith(("_", "-")) and not key.endswith(("_", "-"))
+        assert english_states[key]
+        assert german_states[key]
+    assert german_states["ready_to_enjoy"] == "Fertig zum Genießen"
 
 
 def test_state_options_cover_known_labels():
     options = state_options()
-    assert "Ready to enjoy" in options
-    assert "Steeping" in options
+    assert "ready_to_enjoy" in options
+    assert "steeping" in options
     for status in (*STATUS_NAMES.values(), None):
         for sub_status in (*SUBSTATUS_NAMES.values(), None):
-            assert friendly_state(status, sub_status) in options
+            assert state_key(friendly_state(status, sub_status)) in options
     assert state_options("unknown_99")[-1] == "unknown_99"
     assert "unknown_99" not in options
 

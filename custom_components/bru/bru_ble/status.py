@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
 # Main status byte -> name. The app spells InfoMessge that way.
@@ -345,15 +346,28 @@ def _known_state_labels() -> tuple[str, ...]:
     return tuple(sorted(labels))
 
 
-_KNOWN_STATE_LABELS = _known_state_labels()
-_KNOWN_STATE_LABEL_SET = frozenset(_KNOWN_STATE_LABELS)
+def state_key(label: str) -> str:
+    """Hassfest state id. Keys must match [a-z0-9_-] and not end on _ or -."""
+    spaced = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", label)
+    spaced = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", spaced)
+    key = re.sub(r"[^a-z0-9]+", "_", spaced.lower()).strip("_")
+    return key or "unknown"
+
+
+def _known_state_keys() -> tuple[str, ...]:
+    return tuple(sorted({state_key(label) for label in _known_state_labels()}))
+
+
+_KNOWN_STATE_KEYS = _known_state_keys()
+_KNOWN_STATE_KEY_SET = frozenset(_KNOWN_STATE_KEYS)
 
 
 def state_options(current: str | None = None) -> list[str]:
-    """Known labels, plus a live value the table does not list yet."""
-    if current and current not in _KNOWN_STATE_LABEL_SET:
-        return [*_KNOWN_STATE_LABELS, current]
-    return list(_KNOWN_STATE_LABELS)
+    """Known state ids, plus a live value the table does not list yet."""
+    key = state_key(current) if current else None
+    if key and key not in _KNOWN_STATE_KEY_SET:
+        return [*_KNOWN_STATE_KEYS, key]
+    return list(_KNOWN_STATE_KEYS)
 
 
 @dataclass(frozen=True)
