@@ -8,7 +8,7 @@ from .commands import (
     build_status_request,
     parse_notification,
 )
-from .errors import BruError, BrewRejected, MachineNotFound
+from .errors import BrewRejected, BruError, MachineNotFound
 from .status import MachineState
 
 __all__ = [

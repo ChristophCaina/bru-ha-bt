@@ -30,12 +30,17 @@ async def setup(hass):
         domain=DOMAIN, data={"address": ADDRESS}, title="BRU", unique_id=ADDRESS
     )
     entry.add_to_hass(hass)
-    with patch(
-        "custom_components.bru.coordinator.BruCoordinator.async_start", AsyncMock()
-    ), patch("custom_components.bru.coordinator.BruCoordinator.async_stop"):
+    with (
+        patch(
+            "custom_components.bru.coordinator.BruCoordinator.async_start", AsyncMock()
+        ),
+        patch("custom_components.bru.coordinator.BruCoordinator.async_stop"),
+    ):
         assert await hass.config_entries.async_setup(entry.entry_id)
         await hass.async_block_till_done()
-        device = dr.async_entries_for_config_entry(dr.async_get(hass), entry.entry_id)[0]
+        device = dr.async_entries_for_config_entry(dr.async_get(hass), entry.entry_id)[
+            0
+        ]
         yield entry.runtime_data, device
 
 
@@ -82,7 +87,9 @@ async def _automation(hass, device_id, trigger_type):
 
 
 def _step(coordinator, status, sub):
-    coordinator.state = MachineState(status_code=status, sub_status_code=sub, source="adv")
+    coordinator.state = MachineState(
+        status_code=status, sub_status_code=sub, source="adv"
+    )
     coordinator._track_brew()
 
 

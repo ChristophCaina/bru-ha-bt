@@ -87,7 +87,11 @@ def parse_custom_teas(text: str) -> list[Tea]:
         try:
             temperature = int(float(parts[1].rstrip("°cC ")))
             seconds = parse_duration(parts[2])
-            water = int(float(parts[3].rstrip("ml "))) if len(parts) == 4 and parts[3] else None
+            water = (
+                int(float(parts[3].rstrip("ml ")))
+                if len(parts) == 4 and parts[3]
+                else None
+            )
         except ValueError as err:
             raise TeaParseError(f"line {number}: {err}") from err
         seen.add(name.lower())

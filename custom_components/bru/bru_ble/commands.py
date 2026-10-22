@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import struct
-import time
 from dataclasses import dataclass
 from datetime import date
+import struct
+import time
 
 from .status import (
     BREW_RESULT_LABELS,

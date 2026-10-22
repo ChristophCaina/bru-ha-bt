@@ -8,9 +8,8 @@ import pytest
 
 pytest.importorskip("pytest_homeassistant_custom_component")
 
-from pytest_homeassistant_custom_component.common import MockConfigEntry  # noqa: E402
-
 from homeassistant.core import callback  # noqa: E402
+from pytest_homeassistant_custom_component.common import MockConfigEntry  # noqa: E402
 
 from custom_components.bru.bru_ble.status import MachineState  # noqa: E402
 from custom_components.bru.const import (  # noqa: E402

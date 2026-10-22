@@ -56,9 +56,7 @@ class _BruNumber(RestoreNumber):
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
-        self.async_on_remove(
-            self.coordinator.async_add_listener(self._on_coordinator)
-        )
+        self.async_on_remove(self.coordinator.async_add_listener(self._on_coordinator))
 
     def _on_coordinator(self) -> None:
         """Pick up changes made by the tea select or the brew action."""
