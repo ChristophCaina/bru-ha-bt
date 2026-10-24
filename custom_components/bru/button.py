@@ -47,7 +47,6 @@ class BruStartButton(_BruButton):
     """Start a brew with the current temperature, time, and water amount."""
 
     _attr_translation_key = "start_brew"
-    _attr_icon = "mdi:play"
 
     def __init__(self, coordinator: BruCoordinator) -> None:
         super().__init__(coordinator)
@@ -64,7 +63,6 @@ class BruCancelButton(_BruButton):
     """Stop the process that is currently running."""
 
     _attr_translation_key = "cancel_brew"
-    _attr_icon = "mdi:stop"
 
     def __init__(self, coordinator: BruCoordinator) -> None:
         super().__init__(coordinator)

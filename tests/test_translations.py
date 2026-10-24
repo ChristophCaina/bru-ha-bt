@@ -25,3 +25,20 @@ def test_german_has_every_key():
     strings = json.loads((COMPONENT / "strings.json").read_text())
     german = json.loads((COMPONENT / "translations" / "de.json").read_text())
     assert _keys(german) == _keys(strings)
+
+
+def test_every_icon_belongs_to_a_translated_entity():
+    strings = json.loads((COMPONENT / "strings.json").read_text())
+    icons = json.loads((COMPONENT / "icons.json").read_text())
+    for platform, entities in icons["entity"].items():
+        for key in entities:
+            assert key in strings["entity"][platform], f"{platform}.{key}"
+    assert set(icons["services"]) == set(strings["services"])
+
+
+def test_status_icons_use_translated_states():
+    strings = json.loads((COMPONENT / "strings.json").read_text())
+    icons = json.loads((COMPONENT / "icons.json").read_text())
+    states = strings["entity"]["sensor"]["status"]["state"]
+    for state in icons["entity"]["sensor"]["status"]["state"]:
+        assert state in states, state

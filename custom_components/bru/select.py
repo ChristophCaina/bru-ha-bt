@@ -26,7 +26,6 @@ class BruTeaSelect(SelectEntity, RestoreEntity):
 
     _attr_has_entity_name = True
     _attr_translation_key = "tea"
-    _attr_icon = "mdi:tea-outline"
 
     def __init__(self, coordinator: BruCoordinator) -> None:
         self.coordinator = coordinator
